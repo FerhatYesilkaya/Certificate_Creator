@@ -1,6 +1,8 @@
 #include <FileConstants.au3>
 #include <MsgBoxConstants.au3>
+#include <Constants.au3>
 #include <Array.au3>
+#include <AutoItConstants.au3>
 #include <MsgBoxConstants.au3>
 
 
@@ -84,38 +86,24 @@ Func ExecuteCMD($cmd)
     Return $sOutput
 EndFunc
 
-Func ExecuteCmdWithPassphrase($cmd, $passphrase)
-    ; Logge den auszuführenden Befehl
-    logging("Info", "Executing command: " & $cmd)
+Func runOpenSSlCommand($cmd,$runWait, $checkFilePath, $successMessage, $errorMessage)
 
-    ; Starte das CMD-Fenster mit dem angegebenen Befehl
-    Local $iPID = Run(@ComSpec & " /c " & $cmd, @SystemDir, @SW_SHOW, $STDOUT_CHILD + $STDIN_CHILD + $STDERR_CHILD)
-    Local $sOutput = ""
-    Local $isPassphraseNeeded = True
+    logging("Info","Executing command: "&$cmd)
 
-    While 1
-        If $isPassphraseNeeded Then
-            ; Warten, bis CMD bereit ist, die Passphrase zu akzeptieren
-            Sleep(500)
+    If ($runWait) Then
+        Local $iPID = RunWait($cmd,@SystemDir,@SW_HIDE)
+    else
+        Local $iPID = Run($cmd,@SystemDir,@SW_HIDE)
+    endif
 
-            ; Passphrase an den Prozess senden
-            StdinWrite($iPID, $passphrase & @CRLF)
-            ; Warte kurz bevor die Passphrase erneut zur Bestätigung gesendet wird
-            Sleep(500)
-            StdinWrite($iPID, $passphrase & @CRLF)
-
-            $isPassphraseNeeded = False
-        EndIf
-
-        ; Lese die Ausgabe des Prozesses
-        $sOutput &= StdoutRead($iPID)
-        If @error Then ExitLoop
-    WEnd
-
-    ; Rückgabe der gesammelten Ausgabe
-    Return $sOutput
+    Sleep(1000)
+    ; Überprüfen, ob die Datei erfolgreich erstellt wurde
+    If FileExists($checkFilePath) Then
+        logging("Info",$successMessage)
+    Else
+        logging("Error",$errorMessage,false,true,16,true)
+    EndIf
 EndFunc
-
 
 Func ExecutePowerShell($psCmd, $isFileCommand = false)
     If ($isFileCommand) Then 
