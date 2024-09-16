@@ -84,6 +84,38 @@ Func ExecuteCMD($cmd)
     Return $sOutput
 EndFunc
 
+Func ExecuteCmdWithPassphrase($cmd, $passphrase)
+    ; Logge den auszuführenden Befehl
+    logging("Info", "Executing command: " & $cmd)
+
+    ; Starte das CMD-Fenster mit dem angegebenen Befehl
+    Local $iPID = Run(@ComSpec & " /c " & $cmd, @SystemDir, @SW_SHOW, $STDOUT_CHILD + $STDIN_CHILD + $STDERR_CHILD)
+    Local $sOutput = ""
+    Local $isPassphraseNeeded = True
+
+    While 1
+        If $isPassphraseNeeded Then
+            ; Warten, bis CMD bereit ist, die Passphrase zu akzeptieren
+            Sleep(500)
+
+            ; Passphrase an den Prozess senden
+            StdinWrite($iPID, $passphrase & @CRLF)
+            ; Warte kurz bevor die Passphrase erneut zur Bestätigung gesendet wird
+            Sleep(500)
+            StdinWrite($iPID, $passphrase & @CRLF)
+
+            $isPassphraseNeeded = False
+        EndIf
+
+        ; Lese die Ausgabe des Prozesses
+        $sOutput &= StdoutRead($iPID)
+        If @error Then ExitLoop
+    WEnd
+
+    ; Rückgabe der gesammelten Ausgabe
+    Return $sOutput
+EndFunc
+
 
 Func ExecutePowerShell($psCmd, $isFileCommand = false)
     If ($isFileCommand) Then 

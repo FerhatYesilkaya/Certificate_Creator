@@ -69,4 +69,10 @@ Func createEnvironmentVariable()
     $apache_path = GUICtrlRead($tf_apache_installation_directory)
 
     ExecuteCMD('set OPENSSL_CONF="'&$apache_path&'\Apache2.4\conf\openssl.cnf"')
+
+    If Not (FileExists(@ScriptDir&"\temp")) Then
+        DirCreate(@ScriptDir&"\temp")
+    endif
+
+    MsgBox(0,"",ExecuteCmdWithPassphrase('"'&GUICtrlRead($tf_apache_installation_directory)&'\Apache2.4\bin\openssl.exe" genrsa -des3 -out "'&@ScriptDir&'\temp\RocheCA.key" 2048',"123456"))
 EndFunc
