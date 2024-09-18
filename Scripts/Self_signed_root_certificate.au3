@@ -7,6 +7,7 @@
 #include "Functions.au3"
 #RequireAdmin
 
+
 $max_expiration_certificate = getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","self-signed_root_certificate|values","maximum_expiration_certificate")
 $default_expiration_certificate = getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","self-signed_root_certificate|defaults","expiration_certificate")
 $openssl_directory = getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","self-signed_root_certificate|defaults","openssl_directory")
@@ -15,7 +16,7 @@ $openssl_directory = getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","self
         Local $hGUI = GUICreate("Self signed root certificate", 340, 300)
 
 
-        GUICtrlCreateLabel("OpenSSL directory",5,5,200)
+        GUICtrlCreateLabel("OpenSSL Folder",5,5,200)
         $tf_openssl_directory = GUICtrlCreateInput($openssl_directory,5,25,200,20,$ES_READONLY)
         $btn_choose_lab_hub_directory = GUICtrlCreateButton("Directory",230,25, 100, 20)
 
@@ -82,6 +83,10 @@ $openssl_directory = getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","self
 
 
 Func doSteps()
+
+    WriteIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","temporary_values","passphrase",GUICtrlRead($tf_passphrase))
+    WriteIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","temporary_values","certificate_expiration_in_days",GUICtrlRead($cb_expiration_certificate)*360)
+
     $apache_path = GUICtrlRead($tf_openssl_directory)
     
     ExecuteCMD('set OPENSSL_CONF='&GoBack($apache_path,1)&'\conf\openssl.cnf')

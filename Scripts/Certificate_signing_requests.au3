@@ -7,7 +7,7 @@
 #include "Functions.au3"
 #RequireAdmin
 
-$openssl_directory = getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","self-signed_root_certificate|defaults","openssl_directory")
+$openssl_directory = getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","certificate_signing_requests|defaults","openssl_directory")
 $maximum_vss_hosts = getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","certificate_signing_requests|values","maximum_vss_hosts")
 
 
@@ -15,24 +15,20 @@ $maximum_vss_hosts = getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","cert
         Local $hGUI = GUICreate("Certificate signing requests", 340, 300)
 
 
-        GUICtrlCreateLabel("OpenSSL directory",5,5,200)
+        GUICtrlCreateLabel("OpenSSL Folder",5,5,200)
         $tf_openssl_directory = GUICtrlCreateInput($openssl_directory,5,25,200,20,$ES_READONLY)
         $btn_choose_lab_hub_directory = GUICtrlCreateButton("Directory",230,25, 100, 20)
 
         GUICtrlCreateLabel("Choose number of VSS hosts",5,55,200)
         $cb_number_of_vss_hosts = GUICtrlCreateCombo("",5,75,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
         $data_string = ""
-        For $i = 0 To $maximum_vss_hosts-1 Step +1
-            If($i = 0) Then
-                $data_string = $data_string & String($i+1)
-            endif
-
-            $data_string = $data_string & "|" & String($i+1)
+        For $i = 0 To $maximum_vss_hosts Step +1
+            $data_string = $data_string & "|" & String($i)
         Next
         GUICtrlSetData($cb_number_of_vss_hosts,$data_string,1)
 
         GUICtrlCreateLabel("Private key passphrase",5,105,200,25)
-        local $tf_passphrase = GUICtrlCreateInput("",5,125,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
+        local $tf_passphrase = GUICtrlCreateInput(getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","temporary_values","passphrase"),5,125,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD,$ES_READONLY))
         $rb_show_password = GUICtrlCreateCheckbox("Show Password",210,125)
         $sDefaultPassChar = GUICtrlSendMsg($tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
