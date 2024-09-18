@@ -1,0 +1,20 @@
+2024/09/18 - 12:05:10 --- Info --- Executing CMD command: set OPENSSL_CONF=C:\Users\Administrator\Desktop\conf\openssl.cnf
+2024/09/18 - 12:05:10 --- Info --- Executing CMD command: "C:\Users\Administrator\Desktop\bin\openssl.exe" genrsa -passout pass:123456 -out "C:\Users\Administrator\Desktop\Certificate_Creator\temp\certificate signing requests\VConnect.key" 2048
+2024/09/18 - 12:05:11 --- Info --- 
+2024/09/18 - 12:05:11 --- Info --- Replacing in file: C:\Users\Administrator\Desktop\Certificate_Creator\temp\_data\openssl.cnf
+2024/09/18 - 12:05:11 --- Info --- Changed 'CN = default' with 'CN = 192.168.0.1'
+2024/09/18 - 12:05:11 --- Info --- Executing CMD command: "C:\Users\Administrator\Desktop\bin\openssl.exe" req -new -key "C:\Users\Administrator\Desktop\Certificate_Creator\temp\certificate signing requests\VConnect.key" -out "C:\Users\Administrator\Desktop\Certificate_Creator\temp\certificate signing requests\VConnect.csr" -passin pass:123456 -config "C:\Users\Administrator\Desktop\Certificate_Creator\temp\_data\openssl.cnf"
+2024/09/18 - 12:05:12 --- Info --- 
+2024/09/18 - 12:05:20 --- Info --- Executing CMD command: "C:\Users\Administrator\Desktop\bin\openssl.exe" genrsa -passout pass:123456 -out "C:\Users\Administrator\Desktop\Certificate_Creator\temp\certificate signing requests\VSS_Koeln.key" 2048
+2024/09/18 - 12:05:21 --- Info --- 
+2024/09/18 - 12:05:21 --- Info --- Replacing in file: C:\Users\Administrator\Desktop\Certificate_Creator\temp\_data\openssl.cnf
+2024/09/18 - 12:05:21 --- Info --- Changed 'CN = default' with 'CN = 1.1.1.1'
+2024/09/18 - 12:05:21 --- Info --- Executing CMD command: "C:\Users\Administrator\Desktop\bin\openssl.exe" req -new -key "C:\Users\Administrator\Desktop\Certificate_Creator\temp\certificate signing requests\VSS_Koeln.key" -out "C:\Users\Administrator\Desktop\Certificate_Creator\temp\certificate signing requests\VSS_Koeln.csr" -passin pass:123456 -config "C:\Users\Administrator\Desktop\Certificate_Creator\temp\_data\openssl.cnf"
+2024/09/18 - 12:05:23 --- Info --- 
+2024/09/18 - 12:05:31 --- Info --- Executing CMD command: "C:\Users\Administrator\Desktop\bin\openssl.exe" genrsa -passout pass:123456 -out "C:\Users\Administrator\Desktop\Certificate_Creator\temp\certificate signing requests\VSS_Goettingen.key" 2048
+2024/09/18 - 12:05:32 --- Info --- 
+2024/09/18 - 12:05:32 --- Info --- Replacing in file: C:\Users\Administrator\Desktop\Certificate_Creator\temp\_data\openssl.cnf
+2024/09/18 - 12:05:32 --- Info --- Changed 'CN = default' with 'CN = 2.2.2.2'
+2024/09/18 - 12:05:32 --- Info --- Executing CMD command: "C:\Users\Administrator\Desktop\bin\openssl.exe" req -new -key "C:\Users\Administrator\Desktop\Certificate_Creator\temp\certificate signing requests\VSS_Goettingen.key" -out "C:\Users\Administrator\Desktop\Certificate_Creator\temp\certificate signing requests\VSS_Goettingen.csr" -passin pass:123456 -config "C:\Users\Administrator\Desktop\Certificate_Creator\temp\_data\openssl.cnf"
+2024/09/18 - 12:05:33 --- Info --- 
+2024/09/18 - 12:05:33 --- Info --- Completed

@@ -109,6 +109,13 @@ Func repeatCSRforAllVSS()
 
         $vss_ip = InputBox("VSS","Enter IP-Address of "&$vss_description)
 
+        runOpenSSlCommand('"'&GUICtrlRead($tf_openssl_directory)&'\openssl.exe" genrsa -passout pass:'&GUICtrlRead($tf_passphrase)&' -out "'&GoBack(@ScriptDir,1)&'\temp\certificate signing requests\VSS_'&$vss_description&'.key" 2048',GoBack(@ScriptDir,1)&"\temp\certificate signing requests\VSS_"&$vss_description&".key","Private key generated", "Private key could not be generated")
+
+        ReplaceStringInFile(GoBack(@ScriptDir,1)&"\temp\_data\openssl.cnf", "CN = default", "CN = "&$vss_ip)
+
+        runOpenSSlCommand('"'&GUICtrlRead($tf_openssl_directory)&'\openssl.exe" req -new -key "'&GoBack(@ScriptDir,1)&"\temp\certificate signing requests\VSS_"&$vss_description&".key"&'" -out "'&GoBack(@ScriptDir,1)&"\temp\certificate signing requests\VSS_"&$vss_description&".csr"&'" -passin pass:'&GUICtrlRead($tf_passphrase)&' -config "'&GoBack(@ScriptDir,1)&"\temp\_data\openssl.cnf"&'"',GoBack(@ScriptDir,1)&"\temp\certificate signing requests\VSS_"&$vss_description&".csr","CSR generated", "Could not generate CSR")
+
+
     Next
 
 
