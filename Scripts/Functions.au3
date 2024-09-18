@@ -2,6 +2,7 @@
 #include <MsgBoxConstants.au3>
 #include <Constants.au3>
 #include <Array.au3>
+#include <File.au3>
 #include <AutoItConstants.au3>
 #include <MsgBoxConstants.au3>
 
@@ -30,12 +31,17 @@ Func ChooseFolder()
     EndIf
 EndFunc
 
+; Funktion zum Schreiben eines Werts in eine .ini-Datei
+Func WriteIniValue($sFilePath, $sSection, $sKey, $sValue)
+    Local $iResult = IniWrite($sFilePath, $sSection, $sKey, $sValue)
+    Return $iResult
+EndFunc
+
 ; Funktion zum Auslesen von Werten aus einer INI-Datei
-Func getIniValue($sSection, $sKey, $sDefault = "")
-    $sFilePath = @ScriptDir&"\configurables.ini"
+Func getIniValue($sFilePath, $sSection, $sKey, $sDefault = "")
     ; Überprüfen, ob die Datei existiert
     If Not FileExists($sFilePath) Then
-        MsgBox(16, "Fehler", "Die INI-Datei '" & $sFilePath & "' existiert nicht.")
+        logging("Error", "Ini-file does not exist: "&$sFilePath, false,true,16,true)
         Return $sDefault
     EndIf
     
@@ -44,7 +50,7 @@ Func getIniValue($sSection, $sKey, $sDefault = "")
     
     ; Überprüfen, ob der Schlüssel existiert
     If $sValue = $sDefault Then
-        MsgBox(48, "Hinweis", "Der Schlüssel '" & $sKey & "' in der Sektion '" & $sSection & "' wurde nicht gefunden oder hat den Standardwert.")
+        logging("Warning", "The key '" & $sKey & "' in section '" & $sSection & "' was not found")
         Return $sDefault
     EndIf
     
@@ -52,11 +58,11 @@ Func getIniValue($sSection, $sKey, $sDefault = "")
 EndFunc
 
 Func logging($level, $message, $showProgess=false, $showMessageBox=false,$flagForMessageBox=64, $doExit=false)
-	If Not FileExists(GoBack(@ScriptDir,0)&"\messages.log") Then
-			FileOpen(@ScriptDir & "\messages.log")
+	If Not FileExists(GoBack(@ScriptDir,1)&"\messages.log") Then
+			FileOpen(GoBack(@ScriptDir,1)&"\messages.log")
 	EndIf
 
-	FileWriteLine(GoBack(@ScriptDir,0)&"\messages.log",@YEAR&"/"&@MON&"/"&@MDAY&" - "&@HOUR&":"&@MIN&":"&@SEC&" --- "& $level & " --- "&$message)
+	FileWriteLine(GoBack(@ScriptDir,1)&"\messages.log",@YEAR&"/"&@MON&"/"&@MDAY&" - "&@HOUR&":"&@MIN&":"&@SEC&" --- "& $level & " --- "&$message)
 
 	If($showMessageBox) Then
 			MsgBox($flagForMessageBox,$level,$message)
@@ -86,22 +92,55 @@ Func ExecuteCMD($cmd)
     Return $sOutput
 EndFunc
 
-Func runOpenSSlCommand($cmd,$runWait, $checkFilePath, $successMessage, $errorMessage)
+Func ReplaceStringInFile($sFilePath, $sSearchString, $sReplaceString)
+    logging("Info","Replacing in file: "&$sFilePath)
+    ; Prüfen, ob die Datei existiert
+    If Not FileExists($sFilePath) Then
+        logging("Error","File does not exist: "&$sFilePath,false,true,16,true)
+        Return False
+    EndIf
 
-    logging("Info","Executing command: "&$cmd)
+    ; Datei in eine Variable einlesen
+    Local $sFileContent = FileRead($sFilePath)
+    If @error Then
+        logging("Error","Could not read file: "&$sFilePath,false,true,16,true)
+        Return False
+    EndIf
 
-    If ($runWait) Then
-        Local $iPID = RunWait($cmd,@SystemDir,@SW_HIDE)
-    else
-        Local $iPID = Run($cmd,@SystemDir,@SW_HIDE)
-    endif
+    ; Ersetzen des Strings
+    $sFileContent = StringReplace($sFileContent, $sSearchString, $sReplaceString)
+
+    ; Datei mit dem geänderten Inhalt überschreiben
+    Local $hFile = FileOpen($sFilePath, 2)
+    If $hFile = -1 Then
+        logging("Error","Could not open file: "&$sFilePath,false,true,16,true)
+        Return False
+    EndIf
+
+    FileWrite($hFile, $sFileContent)
+    FileClose($hFile)
+
+    logging("Info","Changed '"&$sSearchString&"' with '"&$sReplaceString&"'")
+    Return True
+EndFunc
+
+Func runOpenSSlCommand($cmd, $checkFilePath, $successMessage, $errorMessage)
+
+    Local $iPID = Run(@ComSpec & " /c " & '"'&$cmd&'"', @SystemDir, @SW_HIDE, $STDOUT_CHILD + $STDERR_CHILD)
+    Local $sOutput = ""
+    logging("Info","Executing CMD command: " &$cmd)
+
+    While 1
+        $sOutput &= StdoutRead($iPID)
+        If @error Then ExitLoop
+    WEnd
 
     Sleep(1000)
     ; Überprüfen, ob die Datei erfolgreich erstellt wurde
     If FileExists($checkFilePath) Then
-        logging("Info",$successMessage)
+        logging("Info",$sOutput)
     Else
-        logging("Error",$errorMessage,false,true,16,true)
+        logging("Error",$errorMessage&":"&@CRLF&$sOutput,false,true,16,true)
     EndIf
 EndFunc
 
