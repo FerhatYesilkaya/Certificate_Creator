@@ -29,7 +29,7 @@
         For $i = 0 To $name2_values_max_expiration_certificate Step +1
             $data_string = $data_string & "|" & String($i)
         Next
-        GUICtrlSetData($cb_certificate_expiration,$data_string,getIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",getIniValue($iniFilePath,"name1|defaults","expiration_certificate")))
+        GUICtrlSetData($cb_certificate_expiration,$data_string,getIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",getIniValue($iniFilePath,"name2|defaults","expiration_certificate")))
 
 
         GUICtrlCreateLabel("Private key passphrase",5,155,200,25)
