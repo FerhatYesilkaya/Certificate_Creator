@@ -58,8 +58,8 @@
 
                         Case $btn_start
                             doSteps()
+                            ShellExecute(@ScriptDir&"\name2.au3")
                             logging("Info","Completed",1,false, true,64, true)
-
                         Case $btn_choose_lab_hub_directory
                             GUICtrlSetData($tf_openssl_directory,ChooseFolder())
 
@@ -85,7 +85,7 @@ Func doSteps()
     WriteIniValue($iniFilePath,"temporary_values","passphrase",GUICtrlRead($tf_passphrase))
     WriteIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",GUICtrlRead($cb_expiration_certificate))
     $t_openSSLPath = GUICtrlRead($tf_openssl_directory)&'\openssl.exe'
-    $t_openCNFPath = GoBack(@ScriptDir,1)&"\temp\_data\vanilla\openssl.cnf"
+    $t_openCNFPath = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
     $t_rocheCAPath = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
     $t_rocheCRTPath = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.crt"
     $t_passphrase  = GUICtrlRead($tf_passphrase)
@@ -99,11 +99,11 @@ Func doSteps()
 	
 	runOpenSSlCommand('"'&$t_openSSLPath&'" genrsa -des3 -passout pass:'&$t_passphrase&' -out "'&$t_rocheCAPath&'" 2048',$t_rocheCAPath,"Private key generated", "Private key could not be generated")
    
-    FileCopy(GoBack(@ScriptDir,1)&"\temp\_data\vanilla\openssl.cnf",GoBack(@ScriptDir,1)&"\temp\_data",1)
+    FileCopy(GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf",GoBack(@ScriptDir,1)&"\data",1)
     
-    ReplaceStringInFile(GoBack(@ScriptDir,1)&"\temp\_data\openssl.cnf", "CN = default", "CN = "&$t_common_name)
+    ReplaceStringInFile(GoBack(@ScriptDir,1)&"\data\openssl.cnf", "CN = default", "CN = "&$t_common_name)
     
-    runOpenSSlCommand('"'&$t_openSSLPath&'" req -x509 -new -nodes -key "'&$t_rocheCAPath&'" -sha256 -days '&$t_expiration_certificate&' -out "'&$t_rocheCRTPath&'" -passin pass:'&$t_passphrase&' -config "'&GoBack(@ScriptDir,1)&"\temp\_data\openssl.cnf"&'"',$t_rocheCRTPath,"Certificate generated", "Could not generate certificate")
+    runOpenSSlCommand('"'&$t_openSSLPath&'" req -x509 -new -nodes -key "'&$t_rocheCAPath&'" -sha256 -days '&$t_expiration_certificate&' -out "'&$t_rocheCRTPath&'" -passin pass:'&$t_passphrase&' -config "'&GoBack(@ScriptDir,1)&"\data\openssl.cnf"&'"',$t_rocheCRTPath,"Certificate generated", "Could not generate certificate")
 
 
     ;runOpenSSlCommand('"'&$t_openSSLPath&'" req -x509 -new -nodes -key "'&$t_rocheCAPath&'" -sha256 -days '&$t_expiration_certificate&' -out "'&$t_rocheCRTPath&'" -passin pass:'&$t_passphrase&' -subj "'&$test&'"',$t_rocheCRTPath,"Certificate generated", "Could not generate certificate")

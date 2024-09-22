@@ -94,14 +94,14 @@ Func doSteps()
 
 
     $apache_path = GUICtrlRead($tf_openssl_directory)
-    $t_vanilla_vss_ext = GoBack(@ScriptDir,1)&"\temp\_data\vanilla\VSS.ext"
-    $t_vss_ext = GoBack(@ScriptDir,1)&"\temp\_data\VSS.ext"
+    $t_vanilla_vss_ext = GoBack(@ScriptDir,1)&"\data\vanilla\VSS.ext"
+    $t_vss_ext = GoBack(@ScriptDir,1)&"\data\VSS.ext"
     $t_openSSLPath = GUICtrlRead($tf_openssl_directory)&'\openssl.exe'
     $t_passphrase = GUICtrlRead($tf_passphrase)
     $t_roche_ca_crt = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.crt"
     $t_roche_ca_key = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
-    $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\temp\_data\vanilla\openssl.cnf"
-    $t_openssl_cnf = GoBack(@ScriptDir,1)&"\temp\_data\openssl.cnf"
+    $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
+    $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl.cnf"
     $t_certificate_expiration_in_days = GUICtrlRead($cb_certificate_expiration)*30
 
     For $i = 0 To GUICtrlRead($cb_number_of_vss_hosts)-1 Step +1
@@ -116,13 +116,13 @@ Func doSteps()
     
         runOpenSSlCommand('"'&$t_openSSLPath&'" genrsa -out "'&$t_vss_key&'" 2048',$t_vss_key,"Private key generated", "Private key could not be generated")
     
-        FileCopy($t_vanilla_openssl_cnf,GoBack(@ScriptDir,1)&"\temp\_data",1)
+        FileCopy($t_vanilla_openssl_cnf,GoBack(@ScriptDir,1)&"\data",1)
     
         ReplaceStringInFile($t_openssl_cnf,"CN = default","CN = "&$t_common_name)
             
         runOpenSSlCommand('"'&$t_openSSLPath&'" req -new -key "'&$t_vss_key&'" -out "'&$t_vss_csr&'" -passin pass:'&$t_passphrase&' -config "'&$t_openssl_cnf&'"',$t_vss_csr,"Key generated", "Could not generate key-file")
         
-        FileCopy($t_vanilla_vss_ext,GoBack(@ScriptDir,1)&"\temp\_data",1)
+        FileCopy($t_vanilla_vss_ext,GoBack(@ScriptDir,1)&"\data",1)
     
         FileWriteLine($t_vss_ext,"IP.1 = "&$t_common_name)
 

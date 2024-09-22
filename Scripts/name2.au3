@@ -60,6 +60,7 @@
 
                         Case $btn_start
                             doSteps()
+                            ShellExecute(@ScriptDir&"\name3.au3")
                             logging("Info","Completed",1,false, true,64, true)
 
                         Case $btn_choose_lab_hub_directory
@@ -90,25 +91,25 @@ Func doSteps()
     $t_VConnect_crt = GoBack(@ScriptDir,1)&"\temp\"&$name2&"\VConnect.crt"
     $t_roche_ca_crt = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.crt"
     $t_roche_ca_key = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
-    $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\temp\_data\vanilla\openssl.cnf"
-    $t_openssl_cnf = GoBack(@ScriptDir,1)&"\temp\_data\openssl.cnf"
+    $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
+    $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl.cnf"
     $t_certificate_expiration_in_days = GUICtrlRead($cb_certificate_expiration)*30
     $t_passphrase = GUICtrlRead($tf_passphrase)
-    $t_vanilla_ext = GoBack(@ScriptDir,1)&"\temp\_data\vanilla\VConnect.ext"
-    $t_ext = GoBack(@ScriptDir,1)&"\temp\_data\VConnect.ext"
+    $t_vanilla_ext = GoBack(@ScriptDir,1)&"\data\vanilla\VConnect.ext"
+    $t_ext = GoBack(@ScriptDir,1)&"\data\VConnect.ext"
 
     ExecuteCMD('set OPENSSL_CONF='&GoBack($apache_path,1)&'\conf\openssl.cnf')
 
 	
 	runOpenSSlCommand('"'&$t_openSSLPath&'" genrsa -out "'&$t_VConnect_key&'" 2048',$t_VConnect_key,"Private key generated", "Private key could not be generated")
    
-    FileCopy($t_vanilla_ext,GoBack(@ScriptDir,1)&"\temp\_data",1)
+    FileCopy($t_vanilla_ext,GoBack(@ScriptDir,1)&"\data",1)
 
     FileWriteLine($t_ext,"IP.1 = "&$t_common_name)
 
     addDNSLines()
 
-    FileCopy($t_vanilla_openssl_cnf,GoBack(@ScriptDir,1)&"\temp\_data",1)
+    FileCopy($t_vanilla_openssl_cnf,GoBack(@ScriptDir,1)&"\data",1)
 
     ReplaceStringInFile($t_openssl_cnf,"CN = default","CN = "&$t_common_name)
     
@@ -125,6 +126,6 @@ Func addDNSLines()
 
         $dns = InputBox("DNS","Enter DNS"&$i+1&" Information")
 
-        FileWriteLine(GoBack(@ScriptDir,1)&"\temp\_data\VConnect.ext","DNS."&$i+1&" = "&$dns)
+        FileWriteLine(GoBack(@ScriptDir,1)&"\data\VConnect.ext","DNS."&$i+1&" = "&$dns)
     Next
 EndFunc
