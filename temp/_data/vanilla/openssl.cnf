@@ -5,11 +5,15 @@ default_keyfile     = privkey.pem
 prompt              = no
 encrypt_key         = no
 distinguished_name  = req_distinguished_name
+x509_extensions     = v3_ca  # Use v3_ca for CA certificates
 
 [ req_distinguished_name ]
 C  = XX
-ST = DefaultState
-L  = DefaultCity
 O  = DefaultOrganization
-OU = DefaultUnit
 CN = default
+
+[ v3_ca ]  # CA-specific extensions
+basicConstraints = critical, CA:TRUE
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer

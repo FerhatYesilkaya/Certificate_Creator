@@ -57,12 +57,12 @@ Func getIniValue($sFilePath, $sSection, $sKey, $sDefault = "")
     Return $sValue
 EndFunc
 
-Func logging($level, $message, $showProgess=false, $showMessageBox=false,$flagForMessageBox=64, $doExit=false)
-	If Not FileExists(GoBack(@ScriptDir,1)&"\messages.log") Then
-			FileOpen(GoBack(@ScriptDir,1)&"\messages.log")
+Func logging($level, $message, $goBack = 1, $showProgess=false, $showMessageBox=false,$flagForMessageBox=64, $doExit=false)
+	If Not FileExists(GoBack(@ScriptDir,$goBack)&"\messages.log") Then
+			FileOpen(GoBack(@ScriptDir,$goBack)&"\messages.log")
 	EndIf
 
-	FileWriteLine(GoBack(@ScriptDir,1)&"\messages.log",@YEAR&"/"&@MON&"/"&@MDAY&" - "&@HOUR&":"&@MIN&":"&@SEC&" --- "& $level & " --- "&$message)
+	FileWriteLine(GoBack(@ScriptDir,$goBack)&"\messages.log",@YEAR&"/"&@MON&"/"&@MDAY&" - "&@HOUR&":"&@MIN&":"&@SEC&" --- "& $level & " --- "&$message)
 
 	If($showMessageBox) Then
 			MsgBox($flagForMessageBox,$level,$message)
@@ -140,7 +140,7 @@ Func runOpenSSlCommand($cmd, $checkFilePath, $successMessage, $errorMessage)
     If FileExists($checkFilePath) Then
         logging("Info",$sOutput)
     Else
-        logging("Error",$errorMessage&":"&@CRLF&$sOutput,false,true,16,true)
+        logging("Error",$errorMessage&":"&@CRLF&$sOutput,1,false,true,16,true)
     EndIf
 EndFunc
 
