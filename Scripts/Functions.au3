@@ -124,6 +124,34 @@ Func ReplaceStringInFile($sFilePath, $sSearchString, $sReplaceString)
     Return True
 EndFunc
 
+Func calculateReadableExpiration(ByRef $expiration_date_readable, ByRef $cb_expiration_date )
+
+    $expirationNumber = GUICtrlRead($cb_expiration_date)
+
+    If Mod($expirationNumber,12) = 0 Then
+       Local  $years = 0
+
+        For $i = 0 To $expirationNumber-1 Step +12
+            $years = $years+1
+            GUICtrlSetData($expiration_date_readable, $years & " year(s)")
+        Next
+
+    Else
+
+        Local $years = 0
+
+        For $i = 0 To $expirationNumber-12 Step +12
+            $years = $years+1
+        Next
+
+        $months = $expirationNumber - ($years*12)
+
+        GUICtrlSetData($expiration_date_readable, $years & " year(s) and "&$months&" month(s)")
+
+    EndIf
+
+EndFunc
+
 Func runOpenSSlCommand($cmd, $checkFilePath, $successMessage, $errorMessage)
 
     Local $iPID = Run(@ComSpec & " /c " & '"'&$cmd&'"', @SystemDir, @SW_HIDE, $STDOUT_CHILD + $STDERR_CHILD)

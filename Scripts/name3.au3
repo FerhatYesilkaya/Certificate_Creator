@@ -40,6 +40,9 @@
         Next
         GUICtrlSetData($cb_certificate_expiration,$data_string_exp,getIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",getIniValue($iniFilePath,"name3|defaults","expiration_certificate")))
 
+        $expiration_date_readable = GUICtrlCreateLabel("Test",210,177,200)
+        calculateReadableExpiration($expiration_date_readable,$cb_certificate_expiration)
+
 
         GUICtrlCreateLabel("Private key passphrase",5,205,200,25)
         local $tf_passphrase = GUICtrlCreateInput(getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","temporary_values","passphrase"),5,225,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
@@ -83,6 +86,10 @@
                                         _WinAPI_SetFocus(ControlGetHandle("","",$tf_passphrase))
                                     EndIf
 
+                            Case $cb_certificate_expiration
+                                calculateReadableExpiration($expiration_date_readable,$cb_certificate_expiration)
+                    
+        
                 EndSwitch
         WEnd
 

@@ -29,6 +29,8 @@
         Next
         GUICtrlSetData($cb_expiration_certificate,$data_string,$name1_default_expiration_certificate)
 
+        $expiration_date_readable = GUICtrlCreateLabel("Test",210,77,200)
+        calculateReadableExpiration($expiration_date_readable,$cb_expiration_certificate)
 
         GUICtrlCreateLabel("Private key passphrase",5,105,200,25)
         local $tf_passphrase = GUICtrlCreateInput("",5,125,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
@@ -63,7 +65,7 @@
                         Case $btn_choose_lab_hub_directory
                             GUICtrlSetData($tf_openssl_directory,ChooseFolder())
 
-                            Case $rb_show_password
+                        Case $rb_show_password
                                 If GUICtrlRead($rb_show_password) = $GUI_CHECKED Then
                                         GUICtrlSendMsg($tf_passphrase, $EM_SETPASSWORDCHAR, 0, 0)
                                         _WinAPI_SetFocus(ControlGetHandle("","",$tf_passphrase))
@@ -71,6 +73,9 @@
                                         GUICtrlSendMsg($tf_passphrase, $EM_SETPASSWORDCHAR, $sDefaultPassChar, 0)
                                         _WinAPI_SetFocus(ControlGetHandle("","",$tf_passphrase))
                                     EndIf
+
+                        Case $cb_expiration_certificate
+                            calculateReadableExpiration($expiration_date_readable,$cb_expiration_certificate)
 
                 EndSwitch
         WEnd
