@@ -33,7 +33,7 @@
 
 
         GUICtrlCreateLabel("Private key passphrase",5,155,200,25)
-        local $tf_passphrase = GUICtrlCreateInput(getIniValue($iniFilePath,"temporary_values","passphrase"),5,175,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD,$ES_READONLY))
+        local $tf_passphrase = GUICtrlCreateInput(getIniValue($iniFilePath,"temporary_values","passphrase"),5,175,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
         $rb_show_password = GUICtrlCreateCheckbox("Show Password",210,175)
         $sDefaultPassChar = GUICtrlSendMsg($tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
@@ -112,10 +112,20 @@ Func doSteps()
     FileCopy($t_vanilla_openssl_cnf,GoBack(@ScriptDir,1)&"\data",1)
 
     ReplaceStringInFile($t_openssl_cnf,"CN = default","CN = "&$t_common_name)
-    
-    runOpenSSlCommand('"'&$t_openSSLPath&'" req -new -key "'&$t_VConnect_key&'" -out "'&$t_VConnect_csr&'" -passin pass:'&$t_passphrase&' -config "'&$t_openssl_cnf&'"',$t_VConnect_csr,"Key generated", "Could not generate key-file")
 
-    runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_VConnect_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_VConnect_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_ext&'" -passin pass:'&$t_passphrase,$t_VConnect_crt,"CSR generated", "Could not generate CSR")
+    if($t_passphrase = "") Then
+        logging("Info", "Creating VConnect.csr without passphrase")
+        runOpenSSlCommand('"'&$t_openSSLPath&'" req -new -key "'&$t_VConnect_key&'" -out "'&$t_VConnect_csr&'" -config "'&$t_openssl_cnf&'"',$t_VConnect_csr,"Key generated", "Could not generate key-file")
+        logging("Info", "Creating VConnect.crt without passphrase")
+        runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_VConnect_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_VConnect_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_ext&'" -passin pass:'&$t_passphrase,$t_VConnect_crt,"CSR generated", "Could not generate CSR")
+
+    Else
+        logging("Info", "Creating VConnect.csr with passphrase")
+        runOpenSSlCommand('"'&$t_openSSLPath&'" req -new -key "'&$t_VConnect_key&'" -out "'&$t_VConnect_csr&'" -passin pass:'&$t_passphrase&' -config "'&$t_openssl_cnf&'"',$t_VConnect_csr,"Key generated", "Could not generate key-file")
+        logging("Info", "Creating VConnect.crt with passphrase")
+        runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_VConnect_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_VConnect_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_ext&'"',$t_VConnect_crt,"CSR generated", "Could not generate CSR")
+
+    endif
 
 EndFunc
 

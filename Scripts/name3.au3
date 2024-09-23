@@ -42,7 +42,7 @@
 
 
         GUICtrlCreateLabel("Private key passphrase",5,205,200,25)
-        local $tf_passphrase = GUICtrlCreateInput(getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","temporary_values","passphrase"),5,225,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD,$ES_READONLY))
+        local $tf_passphrase = GUICtrlCreateInput(getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","temporary_values","passphrase"),5,225,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
         $rb_show_password = GUICtrlCreateCheckbox("Show Password",210,225)
         $sDefaultPassChar = GUICtrlSendMsg($tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
@@ -114,27 +114,50 @@ Func doSteps()
     
         ExecuteCMD('set OPENSSL_CONF='&GoBack($apache_path,1)&'\conf\openssl.cnf')
     
+        logging("Info", "Creating VSS.key")
         runOpenSSlCommand('"'&$t_openSSLPath&'" genrsa -out "'&$t_vss_key&'" 2048',$t_vss_key,"Private key generated", "Private key could not be generated")
     
         FileCopy($t_vanilla_openssl_cnf,GoBack(@ScriptDir,1)&"\data",1)
     
         ReplaceStringInFile($t_openssl_cnf,"CN = default","CN = "&$t_common_name)
-            
-        runOpenSSlCommand('"'&$t_openSSLPath&'" req -new -key "'&$t_vss_key&'" -out "'&$t_vss_csr&'" -passin pass:'&$t_passphrase&' -config "'&$t_openssl_cnf&'"',$t_vss_csr,"Key generated", "Could not generate key-file")
+
+        if($t_passphrase = "") Then
+            logging("Info", "Creating VSS.csr without passphrase")
+            runOpenSSlCommand('"'&$t_openSSLPath&'" req -new -key "'&$t_vss_key&'" -out "'&$t_vss_csr&'" -config "'&$t_openssl_cnf&'"',$t_vss_csr,"Key generated", "Could not generate key-file")
         
-        FileCopy($t_vanilla_vss_ext,GoBack(@ScriptDir,1)&"\data",1)
+            FileCopy($t_vanilla_vss_ext,GoBack(@ScriptDir,1)&"\data",1)
+        
+            FileWriteLine($t_vss_ext,"IP.1 = "&$t_common_name)
     
-        FileWriteLine($t_vss_ext,"IP.1 = "&$t_common_name)
-
-        Local $t_vss_dns
-        For $j = 0 To GUICtrlRead($cb_number_of_dns)-1 Step +1
-            $t_vss_dns = InputBox("VSS","Enter DNS"&$j+1&" for "&$t_vss_description)
-            FileWriteLine($t_vss_ext,"DNS."&$j+1&" = "&$t_vss_dns)
-        Next
-
+            Local $t_vss_dns
+            For $j = 0 To GUICtrlRead($cb_number_of_dns)-1 Step +1
+                $t_vss_dns = InputBox("VSS","Enter DNS"&$j+1&" for "&$t_vss_description)
+                FileWriteLine($t_vss_ext,"DNS."&$j+1&" = "&$t_vss_dns)
+            Next
     
-        runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_vss_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_vss_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_vss_ext&'" -passin pass:'&$t_passphrase,$t_vss_crt,"CSR generated", "Could not generate CSR")
-     
+            logging("Info", "Creating VSS.crt without passphrase")
+            runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_vss_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_vss_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_vss_ext&'"',$t_vss_crt,"CSR generated", "Could not generate CSR")
+    
+        Else
+            logging("Info", "Creating VSS.csr with passphrase")
+            runOpenSSlCommand('"'&$t_openSSLPath&'" req -new -key "'&$t_vss_key&'" -out "'&$t_vss_csr&'" -passin pass:'&$t_passphrase&' -config "'&$t_openssl_cnf&'"',$t_vss_csr,"Key generated", "Could not generate key-file")
+        
+            FileCopy($t_vanilla_vss_ext,GoBack(@ScriptDir,1)&"\data",1)
+        
+            FileWriteLine($t_vss_ext,"IP.1 = "&$t_common_name)
+    
+            Local $t_vss_dns
+            For $j = 0 To GUICtrlRead($cb_number_of_dns)-1 Step +1
+                $t_vss_dns = InputBox("VSS","Enter DNS"&$j+1&" for "&$t_vss_description)
+                FileWriteLine($t_vss_ext,"DNS."&$j+1&" = "&$t_vss_dns)
+            Next
+    
+            logging("Info", "Creating VSS.crt with passphrase")
+            runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_vss_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_vss_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_vss_ext&'" -passin pass:'&$t_passphrase,$t_vss_crt,"CSR generated", "Could not generate CSR")
+         
+    
+        endif
+            
     Next
 EndFunc
 

@@ -91,21 +91,23 @@ Func doSteps()
     $t_passphrase  = GUICtrlRead($tf_passphrase)
     $t_expiration_certificate = (GUICtrlRead($cb_expiration_certificate)*30)
     $t_common_name = GUICtrlRead($tf_common_name)
-
-    $test = "/CN=ca.rochediagnosticsbelgium.local/O=RocheDiagnosticsBelgium/C=BE"
     $apache_path = GUICtrlRead($tf_openssl_directory)
     
+    logging("Info", "Creating OpenSSL Evironment variable")
     ExecuteCMD('set OPENSSL_CONF='&GoBack($apache_path,1)&'\conf\openssl.cnf')
-	
-	runOpenSSlCommand('"'&$t_openSSLPath&'" genrsa -des3 -passout pass:'&$t_passphrase&' -out "'&$t_rocheCAPath&'" 2048',$t_rocheCAPath,"Private key generated", "Private key could not be generated")
-   
+
+    if($t_passphrase = "") Then
+        logging("Info", "Creating RocheCA.key without passphrase")
+        runOpenSSlCommand('"'&$t_openSSLPath&'" genrsa -out "'&$t_rocheCAPath&'" 2048',$t_rocheCAPath,"Private key generated", "Private key could not be generated")
+
+    Else
+        logging("Info", "Creating RocheCA.key with passphrase")
+        runOpenSSlCommand('"'&$t_openSSLPath&'" genrsa -des3 -passout pass:'&$t_passphrase&' -out "'&$t_rocheCAPath&'" 2048',$t_rocheCAPath,"Private key generated", "Private key could not be generated")
+
+    endif
     FileCopy(GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf",GoBack(@ScriptDir,1)&"\data",1)
-    
     ReplaceStringInFile(GoBack(@ScriptDir,1)&"\data\openssl.cnf", "CN = default", "CN = "&$t_common_name)
     
+    logging("Info", "Creating RocheCA.crt")
     runOpenSSlCommand('"'&$t_openSSLPath&'" req -x509 -new -nodes -key "'&$t_rocheCAPath&'" -sha256 -days '&$t_expiration_certificate&' -out "'&$t_rocheCRTPath&'" -passin pass:'&$t_passphrase&' -config "'&GoBack(@ScriptDir,1)&"\data\openssl.cnf"&'"',$t_rocheCRTPath,"Certificate generated", "Could not generate certificate")
-
-
-    ;runOpenSSlCommand('"'&$t_openSSLPath&'" req -x509 -new -nodes -key "'&$t_rocheCAPath&'" -sha256 -days '&$t_expiration_certificate&' -out "'&$t_rocheCRTPath&'" -passin pass:'&$t_passphrase&' -subj "'&$test&'"',$t_rocheCRTPath,"Certificate generated", "Could not generate certificate")
-
 EndFunc
