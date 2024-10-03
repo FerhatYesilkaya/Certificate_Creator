@@ -1,8 +1,13 @@
 #include <FileConstants.au3>
 #include <MsgBoxConstants.au3>
+#include <GUIConstantsEx.au3>
+#include <GUIConstants.au3>
 #include <Constants.au3>
 #include <Array.au3>
+#include <ColorConstants.au3>
+#include <WindowsConstants.au3>
 #include <File.au3>
+#include <WinAPISysWin.au3>
 #include <AutoItConstants.au3>
 #include <MsgBoxConstants.au3>
 
@@ -17,11 +22,11 @@ Func ChooseFolder()
     If @error Then
         Switch @error
             Case 1
-                $sErrorMessage = "Kein Datei ausgewählt"
+                $sErrorMessage = "No File selected"
             Case 2
-                $sErrorMessage = "Fehler beim Öffnen des Dialogs."
+                $sErrorMessage = "Could not open File Chooser"
             Case Else
-                $sErrorMessage = "Ein unbekannter Fehler ist aufgetreten. Fehlercode: " & @error
+                $sErrorMessage = "An unknown error occured. Errorcode: " & @error
         EndSwitch
 
         MsgBox($MB_ICONERROR, "Error", $sErrorMessage)
@@ -29,6 +34,15 @@ Func ChooseFolder()
     Else
         Return $sFolderSelectDialog
     EndIf
+EndFunc
+
+Func addInputBoxDynamically($array, $current_dns_count,$left,$top,$width,$height)
+    if($current_dns_count < UBound($array)) Then
+        $array[$current_dns_count] = GUICtrlCreateInput("Type here" & $current_dns_count,$left,$top,$width,$height)
+        Return $current_dns_count+1
+    else
+        Return $current_dns_count
+    endif
 EndFunc
 
 ; Funktion zum Schreiben eines Werts in eine .ini-Datei
@@ -199,4 +213,55 @@ Func GoBack($path, $levels = 1)
 		$path = StringLeft($path, $pos - 1)
 	Next
 	Return $path
+EndFunc
+
+
+Func changeCSRButtonState(ByRef $csrButton, $arrayOfElements)
+    If(GUICtrlRead($csrButton) = "CSR-Only-Off") Then
+        GUICtrlSetData($csrButton,"CSR-Only-On")
+        GUICtrlSetBkColor($csrButton, $COLOR_GREEN)
+
+        For $i = 0 To UBound($arrayOfElements)-1 Step +1
+            GUICtrlSetState($arrayOfElements[$i],$GUI_DISABLE)
+        Next
+    
+    Else
+        GUICtrlSetData($csrButton,"CSR-Only-Off")
+        GUICtrlSetBkColor($csrButton, $COLOR_RED)
+
+        For $i = 0 To UBound($arrayOfElements)-1 Step +1
+            GUICtrlSetState($arrayOfElements[$i],$GUI_ENABLE)
+        Next
+    endif
+EndFunc
+
+
+Func ArrayExpand($aArray, $vNewElement)
+    ; Berechne die neue Größe
+    Local $iOldSize = UBound($aArray)
+    Local $iNewSize = $iOldSize + 1
+
+    ; Erstelle ein neues Array mit der neuen Größe
+    Local $aNewArray[$iNewSize]
+
+    ; Kopiere die alten Werte ins neue Array
+    For $i = 0 To $iOldSize - 1
+        $aNewArray[$i] = $aArray[$i]
+    Next
+
+    ; Füge das neue Element hinzu
+    $aNewArray[$iNewSize - 1] = $vNewElement
+
+    ; Gib das neue Array zurück
+    Return $aNewArray
+EndFunc
+
+Func showPassword(ByRef $rb_passphrase, ByRef $tf_passphrase, $sDefaultPassChar)
+    If GUICtrlRead($rb_passphrase) = $GUI_CHECKED Then
+        GUICtrlSendMsg($tf_passphrase, $EM_SETPASSWORDCHAR, 0, 0)
+        _WinAPI_SetFocus(ControlGetHandle("","",$tf_passphrase))
+    Else
+        GUICtrlSendMsg($tf_passphrase, $EM_SETPASSWORDCHAR, $sDefaultPassChar, 0)
+        _WinAPI_SetFocus(ControlGetHandle("","",$tf_passphrase))
+EndIf
 EndFunc
