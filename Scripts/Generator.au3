@@ -7,8 +7,16 @@
 #include <WindowsConstants.au3>
 #include <GuiListView.au3>
 #include <GUIScrollbars_Ex.au3>
+#include <GuiComboBox.au3>
+#include <GuiComboBoxEx.au3>
 #include "Variables.au3"
 #RequireAdmin
+
+Local $inputGUI_comboBox_locations
+Local $inputGUI_inputBox_ip
+Local $inputGUI_inputBox_dns
+Local $inputGUI_inputBox_common_name
+Local $vss_locations[0]
 
         ; Create a GUI with various controls
         Local $hGUI = GUICreate("Cert-Generator", $gui_width+20, 500)
@@ -125,7 +133,7 @@
         $third_delete_from_dns_list = GUICtrlCreateButton("Delete DNS",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+215,70)
 
         GUICtrlCreateLabel("Common-Name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+260,200,25)
-        $third_list_ip_view = GUICtrlCreateListView("Location|Common Name", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+275,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
+        $third_list_common_name_view = GUICtrlCreateListView("Location|Common Name", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+275,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
         $third_change_cn_list = GUICtrlCreateButton("Change Common Name",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+285,125)        
 
         $third_create = GUICtrlCreateButton("Create",$gui_width-80,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height-25,70,30)
@@ -178,7 +186,7 @@
                         Case $second_add_to_list
                             secondAddDNS()
                         Case $second_delete_from_list
-                            secondDeleteDNS()
+                            deleteEntryFromListView($second_list_view)
 
                         Case $second_rb_show_password
                             showPassword($second_rb_show_password, $second_tf_passphrase, $second_sDefaultPassChar)
@@ -200,6 +208,30 @@
                             $array = ArrayExpand($array, $second_tf_passphrase)
                             $array = ArrayExpand($array, $second_tf_nplh_ip_address)
                             changeCSRButtonState($second_do_csr_only_btn,$array)
+
+                        Case $third_add_to_ip_list
+                            third_createInputGUI($third_list_ip_view,$third_list_common_name_view,"Add IP","Add","Enter IP-Address","Enter new location name",true)
+
+                        Case $third_delete_from_ip_list
+                            Local $arrayOfElements[0]
+                            $arrayOfElements = ArrayExpand($arrayOfElements, $third_dns_list_view)
+                            $arrayOfElements = ArrayExpand($arrayOfElements, $third_list_common_name_view)
+                            deleteEntryFromListView($third_list_ip_view,$arrayOfElements)
+
+                        Case $third_add_to_dns_list
+                            third_createInputGUI($third_dns_list_view,"","Add DNS","Add","Enter DNS","Enter new location name",false)
+                        Case $third_delete_from_dns_list
+                            deleteEntryFromListView($third_dns_list_view)
+
+                        Case $third_do_csr_only_btn
+                            Local $array[0]
+                            $array = ArrayExpand($array, $third_add_to_dns_list)
+                            $array = ArrayExpand($array, $third_delete_from_dns_list)
+                            $array = ArrayExpand($array, $third_dns_list_view)
+                            $array = ArrayExpand($array, $third_list_ip_view)
+                            $array = ArrayExpand($array, $third_add_to_ip_list)
+                            $array = ArrayExpand($array, $third_delete_from_ip_list)
+                            changeCSRButtonState($third_do_csr_only_btn,$array)
                 EndSwitch
         WEnd
 
@@ -245,20 +277,6 @@ Func secondAddDNS()
         GUICtrlCreateListViewItem($value,$second_list_view)
     endif
 EndFunc
-
-Func secondDeleteDNS() 
-    If(UBound(_GUICtrlListView_GetSelectedIndices($second_list_view,true)) <= 1) Then 
-        return 0
-    endif
-
-    $delete = StringSplit(_GUICtrlListView_GetSelectedIndices($second_list_view),"|")
-    _ArrayDelete($delete,0)
-
-    For $i = 0 To UBound($delete)-1 Step +1
-        _GUICtrlListView_DeleteItem($second_list_view,$delete[$i])
-    Next
-EndFunc
-
 
 Func second_group_do_steps()
     $apache_path = GUICtrlRead($global_settings_tf_openssl_directory)
@@ -318,4 +336,111 @@ Func secondAddDNSLinesToFile()
         $item = _GUICtrlListView_GetItem($second_list_view,$i)
         FileWriteLine(GoBack(@ScriptDir,1)&"\data\VConnect.ext","DNS."&$i+1&" = "&$item[3])
     Next
+EndFunc
+
+Func third_createInputGUI(ByRef $listView, ByRef $secondListView,$title,$btnText,$labelOneDescription, $labelTwoDescriotiption = "", $addNewLocation = false)
+
+    ; Ermittele die Position und Größe des Parent-Fensters
+    Local $pos = WinGetPos($hGUI)
+    Local $parentX = $pos[0]
+    Local $parentY = $pos[1]
+    Local $parentW = $pos[2]
+    Local $parentH = $pos[3]
+    $childWidth = 200
+    $childHeight = 200
+    ;$default = 1 ; 1 = last --> 2 = last created
+
+
+    ; Berechne die Position des Child-Fensters, sodass es in der Mitte des Parent-Fensters ist
+    Local $childX = $parentX + ($parentW - $childWidth) / 2
+    Local $childY = $parentY + ($parentH - $childHeight) / 2
+
+    ; Create a GUI with various controls.
+    Local $inputGUI = GUICreate($title, $childWidth,$childHeight,$childX,$childY,-1,-1,$hGUI)
+
+    GUICtrlCreateLabel("Choose Location",10,10,170,30)
+    $inputGUI_comboBox_locations = GUICtrlCreateCombo("",10,30,180,25,$CBS_DROPDOWNLIST + $WS_VSCROLL)
+
+    $label_one = GUICtrlCreateLabel($labelOneDescription,10,65,170,25)
+    $inputGUI_inputBox_one = GUICtrlCreateInput("",10,85,180,25)
+
+    $label_two = GUICtrlCreateLabel($labelTwoDescriotiption,10,120,170,25)
+    $inputGUI_inputBox_two = GUICtrlCreateInput("",10,140,180,25)
+    If ($addNewLocation = false) Then
+        GUICtrlSetState($label_two,$GUI_HIDE) 
+        GUICtrlSetState($inputGUI_inputBox_two,$GUI_HIDE)
+    endif
+
+
+    Local $idOK = GUICtrlCreateButton($btnText, 50, 170, 85, 25)
+
+    Local $aWindow_Size = WinGetPos($inputGUI)
+    ConsoleWrite('Window Width  = ' & $aWindow_Size[2] & @CRLF)
+    ConsoleWrite('Window Height = ' & $aWindow_Size[3] & @CRLF)
+    Local $aWindowClientArea_Size = WinGetClientSize($inputGUI)
+    ConsoleWrite('Window Client Area Width  = ' & $aWindowClientArea_Size[0] & @CRLF)
+    ConsoleWrite('Window Client Area Height = ' & $aWindowClientArea_Size[1] & @CRLF)
+
+    third_createInputGUI_populate_combobox($third_list_ip_view,$addNewLocation)
+    ; Display the GUI.
+    GUISetState(@SW_SHOW, $inputGUI)
+
+    ; Loop until the user exits.
+    While 1
+        Local $nMsg = GUIGetMsg()
+        Switch $nMsg
+                    Case $GUI_EVENT_CLOSE
+                        ExitLoop
+                    Case $inputGUI_comboBox_locations
+                        if(GUICtrlRead($inputGUI_comboBox_locations) = "Add for new location") Then
+                            GUICtrlSetState($inputGUI_inputBox_two,$GUI_SHOW)
+                            GUICtrlSetState($label_two,$GUI_SHOW)
+                        Else
+                            GUICtrlSetState($inputGUI_inputBox_two,$GUI_HIDE)
+                            GUICtrlSetState($label_two,$GUI_HIDE)
+                        endif
+                    Case $idOK
+                        If(addEntryToListView($inputGUI_comboBox_locations, $inputGUI_inputBox_one, $inputGUI_inputBox_two, $listView, $secondListView) = 1) Then
+                            ExitLoop
+                        endif
+            EndSwitch
+    WEnd
+
+    ; Delete the previous GUI and all controls.
+    GUIDelete($inputGUI)
+EndFunc
+
+Func third_createInputGUI_populate_combobox(Byref $listview, $addNewLocationText = false)
+    $locationExists = false
+    For $i = 0 To _GUICtrlListView_GetItemCount($third_list_ip_view)-1 Step +1
+        $current_location = _GUICtrlListView_GetItemText($third_list_ip_view, $i, 0)
+        For $j = 0 To UBound($vss_locations)-1 Step +1
+            if($current_location = $vss_locations[$j]) Then
+                $locationExists = true
+                ExitLoop
+            else
+                $locationExists = false
+            endif
+        Next
+        If($locationExists = false) Then
+            $vss_locations = ArrayExpand($vss_locations, $current_location)
+        endif
+    Next
+
+    Local $comboBoxString
+    Local $default 
+
+    For $k = 0 To UBound($vss_locations)-1 Step +1
+        If($i = 0) Then 
+            $comboBoxString = $vss_locations[$k]
+        endif
+        $comboBoxString &= "|"&$vss_locations[$k]
+    Next
+
+    If ($addNewLocationText) Then
+        $comboBoxString &= "|Add for new location"
+    endif
+    GUICtrlSetData($inputGUI_comboBox_locations,$comboBoxString)
+    _GUICtrlComboBoxEx_GetItemText($inputGUI_comboBox_locations,_GUICtrlComboBox_GetCount($inputGUI_comboBox_locations)-1,$default)
+    GUICtrlSetData($inputGUI_comboBox_locations,$comboBoxString,$default)
 EndFunc

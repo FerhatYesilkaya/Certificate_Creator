@@ -10,6 +10,11 @@
 #include <WinAPISysWin.au3>
 #include <AutoItConstants.au3>
 #include <MsgBoxConstants.au3>
+#include <GuiComboBox.au3>
+#include <GuiComboBoxEx.au3>
+#include <GuiListView.au3>
+#include <GuiListBox.au3>
+
 
 
 Func ChooseFolder()
@@ -264,4 +269,88 @@ Func showPassword(ByRef $rb_passphrase, ByRef $tf_passphrase, $sDefaultPassChar)
         GUICtrlSendMsg($tf_passphrase, $EM_SETPASSWORDCHAR, $sDefaultPassChar, 0)
         _WinAPI_SetFocus(ControlGetHandle("","",$tf_passphrase))
 EndIf
+EndFunc
+
+Func addEntryToListView(Byref $inputGUI_comboBox_locations, Byref $inputGUI_inputBox_one, Byref $inputGUI_inputBox_two, ByRef $mainListview, Byref $secondListView)
+    If(GUICtrlRead($inputGUI_comboBox_locations) = "Add for new location") Then
+        If(GUICtrlRead($inputGUI_inputBox_one) = "" Or GUICtrlRead($inputGUI_inputBox_two) = "") Then
+            MsgBox(48,"Warning","Please enter all information")
+            return 0
+        else
+            Local $newLocationtext
+            _GUICtrlComboBoxEx_GetItemText($inputGUI_comboBox_locations,_GUICtrlComboBox_GetCount($inputGUI_comboBox_locations)-1,$newLocationtext)
+            For $g = 0 To  _GUICtrlComboBox_GetCount($inputGUI_comboBox_locations)-1 Step +1
+                _GUICtrlComboBoxEx_GetItemText($inputGUI_comboBox_locations,$g,$newLocationtext)
+                if($newLocationtext = GUICtrlRead($inputGUI_inputBox_two)) Then
+                    MsgBox(48,"Warning","This location already exists. Please select from dropdown")
+                    Return 0
+                endif
+            Next 
+            GUICtrlCreateListViewItem(GUICtrlRead($inputGUI_inputBox_two)&"|"&GUICtrlRead($inputGUI_inputBox_one), $mainListview)
+            if Not ($secondListView = "") Then
+                GUICtrlCreateListViewItem(GUICtrlRead($inputGUI_inputBox_two)&"|"&GUICtrlRead($inputGUI_inputBox_one), $secondListView)
+            endif
+            Return 1
+        endif
+    else
+        If(GUICtrlRead($inputGUI_inputBox_one) = "") Then
+            MsgBox(48,"Warning","Please enter all information")
+            return 0
+        else
+            GUICtrlCreateListViewItem(GUICtrlRead($inputGUI_comboBox_locations)&"|"&GUICtrlRead($inputGUI_inputBox_one), $mainListview)
+            if Not ($secondListView = "") Then
+                $locationSecondListExists = false
+                For $m = 0 To _GUICtrlListView_GetItemCount($secondListView)-1 Step +1
+                    $current_location = _GUICtrlListView_GetItemText($secondListView, $m, 0)
+                    If(GUICtrlRead($inputGUI_comboBox_locations) = $current_location) Then
+                        $locationSecondListExists = true
+                    else
+                        $locationSecondListExists = false 
+                    endif
+                Next
+                If ($locationSecondListExists = false) Then
+                    GUICtrlCreateListViewItem(GUICtrlRead($inputGUI_comboBox_locations)&"|"&GUICtrlRead($inputGUI_inputBox_one), $secondListView)
+                endif
+            endif
+            Return 1
+        endif
+    endif
+
+EndFunc
+
+Func deleteEntryFromListView(ByRef $mainListview, $arrayofListViews = "")
+    If(UBound(_GUICtrlListView_GetSelectedIndices($mainListview,true)) <= 1) Then 
+        return 0
+    endif
+
+    $delete = StringSplit(_GUICtrlListView_GetSelectedIndices($mainListview),"|")
+    _ArrayDelete($delete,0)
+
+    $delete_text = _GUICtrlListView_GetItemText($mainListview, Number($delete[0]), 0)
+    For $i = 0 To UBound($delete)-1 Step +1
+        _GUICtrlListView_DeleteItem($mainListview,$delete[$i])
+    Next
+
+    Local $entriesWithLocationExists = false
+    For $j = 0 To _GUICtrlListView_GetItemCount($mainListview)-1 Step +1
+        $current_location = _GUICtrlListView_GetItemText($mainListview, $j, 0)
+        If($current_location = $delete_text) Then
+            $entriesWithLocationExists = true
+            ExitLoop
+        else
+            $entriesWithLocationExists = false
+        endif
+    next
+
+    If ($arrayofListViews <> "" AND $entriesWithLocationExists = false) Then 
+        For $k = 0 To UBound($arrayofListViews)-1 Step +1
+            For $p = 0 To _GUICtrlListView_GetItemCount($arrayofListViews[$k])-1 Step +1
+                $current_location = _GUICtrlListView_GetItemText($arrayofListViews[$k], $p, 0)
+                If($current_location = $delete_text) Then
+                    _GUICtrlListView_DeleteItem($arrayofListViews[$k],$p)
+                    $p = $p-1
+                endif
+            Next
+        Next
+    endif
 EndFunc
