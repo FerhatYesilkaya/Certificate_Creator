@@ -34,5 +34,5 @@ $gap_left = 15
 $global_settings_group = 200
 $first_group_height = 185
 $secound_group_height = 350
-$third_group_height = 500
+$third_group_height = 470
 $fourth_group_height = 210

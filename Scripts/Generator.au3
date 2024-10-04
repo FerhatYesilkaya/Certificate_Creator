@@ -79,8 +79,8 @@ Local $vss_locations[0]
         GUICtrlCreateLabel("DNS",$gap_left,$global_settings_group+$first_group_height+35,200,25)
 
         $second_list_view = GUICtrlCreateListView("DNS", $gap_left,$global_settings_group+$first_group_height+55,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
-        $second_add_to_list = GUICtrlCreateButton("Add DNS",$gap_left+310,$global_settings_group+$first_group_height+60,70)
-        $second_delete_from_list = GUICtrlCreateButton("Delete DNS",$gap_left+310,$global_settings_group+$first_group_height+100,70)
+        $second_add_to_list = GUICtrlCreateButton("Add",$gap_left+310,$global_settings_group+$first_group_height+60,70)
+        $second_delete_from_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+100,70)
 
 
 
@@ -124,19 +124,38 @@ Local $vss_locations[0]
 
         GUICtrlCreateLabel("VSS-IP-Address",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+40,200,25)
         $third_list_ip_view = GUICtrlCreateListView("Location|IP", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+55,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
-        $third_add_to_ip_list = GUICtrlCreateButton("Add IP",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+65,70)
-        $third_delete_from_ip_list = GUICtrlCreateButton("Delete IP",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+105,70)
+        $third_add_to_ip_list = GUICtrlCreateButton("Add",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+65,70)
+        $third_delete_from_ip_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+105,70)
 
         GUICtrlCreateLabel("DNS",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+150,200,25)
         $third_dns_list_view = GUICtrlCreateListView("Location|DNS", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+165,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
-        $third_add_to_dns_list = GUICtrlCreateButton("Add DNS",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+175,70)
-        $third_delete_from_dns_list = GUICtrlCreateButton("Delete DNS",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+215,70)
+        $third_add_to_dns_list = GUICtrlCreateButton("Add",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+175,70)
+        $third_delete_from_dns_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+215,70)
 
         GUICtrlCreateLabel("Common-Name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+260,200,25)
         $third_list_common_name_view = GUICtrlCreateListView("Location|Common Name", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+275,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
-        $third_change_cn_list = GUICtrlCreateButton("Change Common Name",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+285,125)        
+        $third_change_cn_list = GUICtrlCreateButton("Change",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+285,70)        
+
+
+        GUICtrlCreateLabel("Certificate expiration (months)",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+370,200)
+        $third_cb_certificate_expiration = GUICtrlCreateCombo(getIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",$name3_default_expiration_certificate),$gap_left,$global_settings_group+$first_group_height+$secound_group_height+390,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
+        $third_data_string = ""
+        For $i = 0 To $name3_values_max_expiration_certificate-1 Step +1
+            $third_data_string = $third_data_string & "|" & String($i+1)
+        Next
+        GUICtrlSetData($third_cb_certificate_expiration,$third_data_string,getIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",getIniValue($iniFilePath,"name3|defaults","expiration_certificate")))
+        $third_expiration_date_readable = GUICtrlCreateLabel("Test",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+393,200)
+        calculateReadableExpiration($third_expiration_date_readable,$third_cb_certificate_expiration)
+
+
+        GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+420,200,25)
+        local $third_tf_passphrase = GUICtrlCreateInput(getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","temporary_values","passphrase"),$gap_left,$global_settings_group+$first_group_height+$secound_group_height+440,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
+        $third_rb_show_password = GUICtrlCreateCheckbox("Show Password",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+440)
+        $third_sDefaultPassChar = GUICtrlSendMsg($third_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
+
 
         $third_create = GUICtrlCreateButton("Create",$gui_width-80,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height-25,70,30)
+
 
         ;Third - End
 
@@ -186,7 +205,7 @@ Local $vss_locations[0]
                         Case $second_add_to_list
                             secondAddDNS()
                         Case $second_delete_from_list
-                            deleteEntryFromListView($second_list_view)
+                            deleteEntryFromListView($second_list_view,$vss_locations)
 
                         Case $second_rb_show_password
                             showPassword($second_rb_show_password, $second_tf_passphrase, $second_sDefaultPassChar)
@@ -211,17 +230,20 @@ Local $vss_locations[0]
 
                         Case $third_add_to_ip_list
                             third_createInputGUI($third_list_ip_view,$third_list_common_name_view,"Add IP","Add","Enter IP-Address","Enter new location name",true)
-
                         Case $third_delete_from_ip_list
                             Local $arrayOfElements[0]
                             $arrayOfElements = ArrayExpand($arrayOfElements, $third_dns_list_view)
                             $arrayOfElements = ArrayExpand($arrayOfElements, $third_list_common_name_view)
-                            deleteEntryFromListView($third_list_ip_view,$arrayOfElements)
+                            deleteEntryFromListView($third_list_ip_view,$vss_locations,$arrayOfElements)
 
                         Case $third_add_to_dns_list
                             third_createInputGUI($third_dns_list_view,"","Add DNS","Add","Enter DNS","Enter new location name",false)
                         Case $third_delete_from_dns_list
-                            deleteEntryFromListView($third_dns_list_view)
+                            $value = deleteEntryFromListView($third_dns_list_view, $vss_locations)
+                            If($value <> 0) Then
+                                $vss_locations = $value
+                            endif
+                            
 
                         Case $third_do_csr_only_btn
                             Local $array[0]
@@ -231,7 +253,20 @@ Local $vss_locations[0]
                             $array = ArrayExpand($array, $third_list_ip_view)
                             $array = ArrayExpand($array, $third_add_to_ip_list)
                             $array = ArrayExpand($array, $third_delete_from_ip_list)
+                            $array = ArrayExpand($array, $third_cb_certificate_expiration)
+                            $array = ArrayExpand($array, $third_tf_passphrase)
+                            $array = ArrayExpand($array, $third_rb_show_password)
                             changeCSRButtonState($third_do_csr_only_btn,$array)
+
+                        Case $third_rb_show_password
+                            showPassword($third_rb_show_password, $third_tf_passphrase, $third_sDefaultPassChar)
+
+                        Case $third_cb_certificate_expiration
+                            calculateReadableExpiration($third_expiration_date_readable,$third_cb_certificate_expiration)
+
+                        Case $third_create
+                            third_group_do_steps()
+                            logging("Info", "Completed",1, false, true,64, false)
                 EndSwitch
         WEnd
 
@@ -430,6 +465,8 @@ Func third_createInputGUI_populate_combobox(Byref $listview, $addNewLocationText
     Local $comboBoxString
     Local $default 
 
+    
+
     For $k = 0 To UBound($vss_locations)-1 Step +1
         If($i = 0) Then 
             $comboBoxString = $vss_locations[$k]
@@ -443,4 +480,84 @@ Func third_createInputGUI_populate_combobox(Byref $listview, $addNewLocationText
     GUICtrlSetData($inputGUI_comboBox_locations,$comboBoxString)
     _GUICtrlComboBoxEx_GetItemText($inputGUI_comboBox_locations,_GUICtrlComboBox_GetCount($inputGUI_comboBox_locations)-1,$default)
     GUICtrlSetData($inputGUI_comboBox_locations,$comboBoxString,$default)
+EndFunc
+
+Func third_group_do_steps()
+
+
+    $apache_path = GUICtrlRead($global_settings_tf_openssl_directory)
+    $t_vanilla_vss_ext = GoBack(@ScriptDir,1)&"\data\vanilla\VSS.ext"
+    $t_vss_ext = GoBack(@ScriptDir,1)&"\data\VSS.ext"
+    $t_openSSLPath = GUICtrlRead($global_settings_tf_openssl_directory)&'\openssl.exe'
+    $t_passphrase = GUICtrlRead($third_tf_passphrase)
+    $t_roche_ca_crt = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.crt"
+    $t_roche_ca_key = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
+    $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
+    $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl.cnf"
+    $t_certificate_expiration_in_days = GUICtrlRead($third_cb_certificate_expiration)*30
+
+    For $i = 0 To _GUICtrlListView_GetItemCount($third_list_common_name_view)-1 Step +1
+        $current_ip_location = _GUICtrlListView_GetItemText($third_list_ip_view, $i, 0)
+        $current_ip = _GUICtrlListView_GetItemText($third_list_ip_view, $i, 1)
+        $t_vss_description = $current_ip_location
+        $t_common_name =  $current_ip
+
+        $t_vss_key = GoBack(@ScriptDir,1)&"\temp\"&$name3&"\VSS_"&$t_vss_description&".key"
+        $t_vss_csr = GoBack(@ScriptDir,1)&"\temp\"&$name3&"\VSS_"&$t_vss_description&".csr"
+        $t_vss_crt = GoBack(@ScriptDir,1)&"\temp\"&$name3&"\VSS_"&$t_vss_description&".crt"
+    
+        ExecuteCMD('set OPENSSL_CONF='&GoBack($apache_path,1)&'\conf\openssl.cnf')
+    
+        logging("Info", "Creating VSS.key")
+        runOpenSSlCommand('"'&$t_openSSLPath&'" genrsa -out "'&$t_vss_key&'" 2048',$t_vss_key,"Private key generated", "Private key could not be generated")
+    
+        FileCopy($t_vanilla_openssl_cnf,GoBack(@ScriptDir,1)&"\data",1)
+    
+        ReplaceStringInFile($t_openssl_cnf,"CN = default","CN = "&$t_common_name)
+        runOpenSSlCommand('"'&$t_openSSLPath&'" req -new -key "'&$t_vss_key&'" -out "'&$t_vss_csr&'" -config "'&$t_openssl_cnf&'"',$t_vss_csr,"Key generated", "Could not generate key-file")
+    
+        If(GUICtrlRead($third_do_csr_only_btn) = "CSR-Only-On") Then
+            ContinueLoop
+        endif
+
+        if($t_passphrase = "") Then
+            FileCopy($t_vanilla_vss_ext,GoBack(@ScriptDir,1)&"\data",1)
+        
+            FileWriteLine($t_vss_ext,"IP.1 = "&$t_common_name)
+    
+            Local $t_vss_dns
+            For $j = 0 To _GUICtrlListView_GetItemCount($third_dns_list_view)-1 Step +1
+                $current_dns_location  = _GUICtrlListView_GetItemText($third_dns_list_view, $j, 0)
+                $current_dns = _GUICtrlListView_GetItemText($third_dns_list_view, $j, 1)
+                $t_vss_dns = $current_dns
+                If($current_dns_location = $current_ip_location) Then
+                    FileWriteLine($t_vss_ext,"DNS."&$j+1&" = "&$t_vss_dns)
+                endif
+            Next
+    
+            logging("Info", "Creating VSS.crt without passphrase")
+            runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_vss_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_vss_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_vss_ext&'"',$t_vss_crt,"CSR generated", "Could not generate CSR")
+    
+        Else
+            FileCopy($t_vanilla_vss_ext,GoBack(@ScriptDir,1)&"\data",1)
+        
+            FileWriteLine($t_vss_ext,"IP.1 = "&$t_common_name)
+    
+            Local $t_vss_dns
+            For $k = 0 To _GUICtrlListView_GetItemCount($third_dns_list_view)-1 Step +1
+                $current_dns_location = _GUICtrlListView_GetItemText($third_dns_list_view, $k, 0)
+                $current_dns = _GUICtrlListView_GetItemText($third_dns_list_view, $k, 1)
+                $t_vss_dns = $current_dns
+                If($current_dns_location = $current_ip_location) Then
+                    FileWriteLine($t_vss_ext,"DNS."&$k+1&" = "&$t_vss_dns)
+                endif            
+            Next
+    
+            logging("Info", "Creating VSS.crt with passphrase")
+            runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_vss_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_vss_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_vss_ext&'" -passin pass:'&$t_passphrase,$t_vss_crt,"CSR generated", "Could not generate CSR")
+         
+    
+        endif
+            
+    Next
 EndFunc

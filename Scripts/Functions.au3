@@ -315,10 +315,9 @@ Func addEntryToListView(Byref $inputGUI_comboBox_locations, Byref $inputGUI_inpu
             Return 1
         endif
     endif
-
 EndFunc
 
-Func deleteEntryFromListView(ByRef $mainListview, $arrayofListViews = "")
+Func deleteEntryFromListView(ByRef $mainListview, ByRef $locations_array, $arrayofListViews = "")
     If(UBound(_GUICtrlListView_GetSelectedIndices($mainListview,true)) <= 1) Then 
         return 0
     endif
@@ -349,6 +348,9 @@ Func deleteEntryFromListView(ByRef $mainListview, $arrayofListViews = "")
                 If($current_location = $delete_text) Then
                     _GUICtrlListView_DeleteItem($arrayofListViews[$k],$p)
                     $p = $p-1
+                    If Not ($locations_array = "") Then
+                        _ArrayDelete($locations_array,_ArraySearch($locations_array,$delete_text))
+                    endif
                 endif
             Next
         Next
