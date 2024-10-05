@@ -134,7 +134,7 @@ Local $vss_locations[0]
 
         GUICtrlCreateLabel("Common-Name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+260,200,25)
         $third_list_common_name_view = GUICtrlCreateListView("Location|Common Name", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+275,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
-        $third_change_cn_list = GUICtrlCreateButton("Change",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+285,70)        
+        $third_change_cn_list = GUICtrlCreateButton("Change",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+275,70)        
 
 
         GUICtrlCreateLabel("Certificate expiration (months)",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+370,200)
@@ -160,10 +160,48 @@ Local $vss_locations[0]
         ;Third - End
 
 
-
         ;Fourth - Start
         $fourth_group = GUICtrlCreateGroup($name4,5,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+20,$gui_width-10, $fourth_group_height)
         GUICtrlSetFont(-1,11,700)
+
+        $fourth_do_csr_only_btn = GUICtrlCreateButton("CSR-Only-Off",$gui_width-95,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+40,85,30)
+        GUICtrlSetBkColor(-1,$COLOR_RED)
+
+
+        GUICtrlCreateLabel("DNS",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+50,200,25)
+
+        $fourth_list_view = GUICtrlCreateListView("DNS", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+70,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
+        $fourth_add_to_list = GUICtrlCreateButton("Add",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+85,70)
+        $fourth_delete_from_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+125,70)
+
+
+
+        ;$second_add_dns_btn = GUICtrlCreateButton("Add DNS",$gap_left,$global_settings_group+$first_group_height+55)
+
+
+        GUICtrlCreateLabel("Certificate expiration (months)",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+160,200)
+        $fourth_cb_certificate_expiration = GUICtrlCreateCombo("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+180,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
+        $fourth_data_string = ""
+        For $i = 0 To $name3_values_max_expiration_certificate Step +1
+            $fourth_data_string = $fourth_data_string & "|" & String($i)
+        Next
+        GUICtrlSetData($fourth_cb_certificate_expiration,$fourth_data_string,getIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",getIniValue($iniFilePath,"name2|defaults","expiration_certificate")))
+        $fourth_expiration_date_readable = GUICtrlCreateLabel("Test",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+188,200)
+        calculateReadableExpiration($fourth_expiration_date_readable,$fourth_cb_certificate_expiration)
+
+        GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+205,200,25)
+        local $fourth_tf_passphrase = GUICtrlCreateInput(getIniValue($iniFilePath,"temporary_values","passphrase"),$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+225,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
+        $fourth_rb_show_password = GUICtrlCreateCheckbox("Show Password",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+225)
+        $fourth_sDefaultPassChar = GUICtrlSendMsg($second_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
+
+        GUICtrlCreateLabel("nPLH/VConnect-Server IP",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+245)
+        $fourth_tf_nplh_ip_address = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+265,200,20)
+
+        GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+295,200,25)
+        local $fourth_tf_common_name = GUICtrlCreateInput(getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","name2|defaults","common_name"),$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+315,200,20)
+        
+        $fourth_create = GUICtrlCreateButton("Create",$gui_width-80,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+$fourth_group_height-20,70,30)
+
         ;Fourth - End
 
 
@@ -218,6 +256,7 @@ Local $vss_locations[0]
                             logging("Info", "Completed",1, false, true,64, false)
 
                         Case $second_do_csr_only_btn
+                            _GUICtrlListView_DeleteAllItems(GUICtrlGetHandle($second_list_view))
                             Local $array[0]
                             $array = ArrayExpand($array, $second_add_to_list)
                             $array = ArrayExpand($array, $second_delete_from_list)
@@ -229,7 +268,7 @@ Local $vss_locations[0]
                             changeCSRButtonState($second_do_csr_only_btn,$array)
 
                         Case $third_add_to_ip_list
-                            third_createInputGUI($third_list_ip_view,$third_list_common_name_view,"Add IP","Add","Enter IP-Address","Enter new location name",true)
+                            third_createInputGUI($third_list_ip_view,$third_list_common_name_view,"Add IP","Add","Enter IP-Address","Enter new location name",true,true)
                         Case $third_delete_from_ip_list
                             Local $arrayOfElements[0]
                             $arrayOfElements = ArrayExpand($arrayOfElements, $third_dns_list_view)
@@ -246,13 +285,13 @@ Local $vss_locations[0]
                             
 
                         Case $third_do_csr_only_btn
+                            _GUICtrlListView_DeleteAllItems(GUICtrlGetHandle($third_list_common_name_view))
+                            _GUICtrlListView_DeleteAllItems(GUICtrlGetHandle($third_list_ip_view))
+                            _GUICtrlListView_DeleteAllItems(GUICtrlGetHandle($third_dns_list_view))
                             Local $array[0]
                             $array = ArrayExpand($array, $third_add_to_dns_list)
                             $array = ArrayExpand($array, $third_delete_from_dns_list)
                             $array = ArrayExpand($array, $third_dns_list_view)
-                            $array = ArrayExpand($array, $third_list_ip_view)
-                            $array = ArrayExpand($array, $third_add_to_ip_list)
-                            $array = ArrayExpand($array, $third_delete_from_ip_list)
                             $array = ArrayExpand($array, $third_cb_certificate_expiration)
                             $array = ArrayExpand($array, $third_tf_passphrase)
                             $array = ArrayExpand($array, $third_rb_show_password)
@@ -264,9 +303,18 @@ Local $vss_locations[0]
                         Case $third_cb_certificate_expiration
                             calculateReadableExpiration($third_expiration_date_readable,$third_cb_certificate_expiration)
 
+                        Case $third_change_cn_list
+                            If(UBound(_GUICtrlListView_GetSelectedIndices($third_list_common_name_view,true)) <= 1) Then 
+                                MsgBox(64,"Info","Please selected an entry. You can add a common name by adding an IP-Address")
+                            else
+                                third_createInputGUI($third_list_common_name_view,"","Change Common Name","Change","Enter new Common Name","Enter new location name",false,true,"Change")
+                            endif
+
+                            ;changeEntryToListView($inputGUI_comboBox_locations, $inputGUI_inputBox_one, $inputGUI_inputBox_two, $third_list_common_name_view)
                         Case $third_create
                             third_group_do_steps()
                             logging("Info", "Completed",1, false, true,64, false)
+
                 EndSwitch
         WEnd
 
@@ -373,7 +421,7 @@ Func secondAddDNSLinesToFile()
     Next
 EndFunc
 
-Func third_createInputGUI(ByRef $listView, ByRef $secondListView,$title,$btnText,$labelOneDescription, $labelTwoDescriotiption = "", $addNewLocation = false)
+Func third_createInputGUI(ByRef $listView, ByRef $secondListView,$title,$btnText,$labelOneDescription, $labelTwoDescriotiption = "", $addNewLocation = false, $disableComboBox=false, $mode = "Add")
 
     ; Ermittele die Position und Größe des Parent-Fensters
     Local $pos = WinGetPos($hGUI)
@@ -395,6 +443,9 @@ Func third_createInputGUI(ByRef $listView, ByRef $secondListView,$title,$btnText
 
     GUICtrlCreateLabel("Choose Location",10,10,170,30)
     $inputGUI_comboBox_locations = GUICtrlCreateCombo("",10,30,180,25,$CBS_DROPDOWNLIST + $WS_VSCROLL)
+    If($disableComboBox) Then
+        GUICtrlSetState($inputGUI_comboBox_locations,$GUI_DISABLE)
+    endif
 
     $label_one = GUICtrlCreateLabel($labelOneDescription,10,65,170,25)
     $inputGUI_inputBox_one = GUICtrlCreateInput("",10,85,180,25)
@@ -416,7 +467,7 @@ Func third_createInputGUI(ByRef $listView, ByRef $secondListView,$title,$btnText
     ConsoleWrite('Window Client Area Width  = ' & $aWindowClientArea_Size[0] & @CRLF)
     ConsoleWrite('Window Client Area Height = ' & $aWindowClientArea_Size[1] & @CRLF)
 
-    third_createInputGUI_populate_combobox($third_list_ip_view,$addNewLocation)
+    third_createInputGUI_populate_combobox($third_list_ip_view,$listview,$addNewLocation,$mode)
     ; Display the GUI.
     GUISetState(@SW_SHOW, $inputGUI)
 
@@ -435,8 +486,16 @@ Func third_createInputGUI(ByRef $listView, ByRef $secondListView,$title,$btnText
                             GUICtrlSetState($label_two,$GUI_HIDE)
                         endif
                     Case $idOK
-                        If(addEntryToListView($inputGUI_comboBox_locations, $inputGUI_inputBox_one, $inputGUI_inputBox_two, $listView, $secondListView) = 1) Then
-                            ExitLoop
+                        If($mode = "Add") Then
+                            If(addEntryToListView($inputGUI_comboBox_locations, $inputGUI_inputBox_one, $inputGUI_inputBox_two, $listView, $secondListView) = 1) Then
+                                ExitLoop
+                            endif
+                        endif
+
+                        If($mode = "Change") Then
+                            If(changeEntryToListView($inputGUI_comboBox_locations, $inputGUI_inputBox_one, $third_list_common_name_view) = 1) Then
+                                ExitLoop
+                            endif
                         endif
             EndSwitch
     WEnd
@@ -445,7 +504,7 @@ Func third_createInputGUI(ByRef $listView, ByRef $secondListView,$title,$btnText
     GUIDelete($inputGUI)
 EndFunc
 
-Func third_createInputGUI_populate_combobox(Byref $listview, $addNewLocationText = false)
+Func third_createInputGUI_populate_combobox(Byref $listview,  ByRef $secondListView, $addNewLocationText = false, $mode = "Add")
     $locationExists = false
     For $i = 0 To _GUICtrlListView_GetItemCount($third_list_ip_view)-1 Step +1
         $current_location = _GUICtrlListView_GetItemText($third_list_ip_view, $i, 0)
@@ -477,9 +536,17 @@ Func third_createInputGUI_populate_combobox(Byref $listview, $addNewLocationText
     If ($addNewLocationText) Then
         $comboBoxString &= "|Add for new location"
     endif
+
     GUICtrlSetData($inputGUI_comboBox_locations,$comboBoxString)
-    _GUICtrlComboBoxEx_GetItemText($inputGUI_comboBox_locations,_GUICtrlComboBox_GetCount($inputGUI_comboBox_locations)-1,$default)
-    GUICtrlSetData($inputGUI_comboBox_locations,$comboBoxString,$default)
+
+    If($mode = "Change") Then
+        $change = StringSplit(_GUICtrlListView_GetSelectedIndices($secondListView),"|")
+        $change_location = _GUICtrlListView_GetItemText($secondListView, Number($change[1]), 0)
+        GUICtrlSetData($inputGUI_comboBox_locations,$comboBoxString,$change_location)
+    else
+        _GUICtrlComboBoxEx_GetItemText($inputGUI_comboBox_locations,_GUICtrlComboBox_GetCount($inputGUI_comboBox_locations)-1,$default)
+        GUICtrlSetData($inputGUI_comboBox_locations,$comboBoxString,$default)
+    endif
 EndFunc
 
 Func third_group_do_steps()
@@ -560,4 +627,19 @@ Func third_group_do_steps()
         endif
             
     Next
+EndFunc
+
+Func checkIfNecessaryDataExists($mode)
+
+    If Not (FileExists(GoBack(@ScriptDir,1)&"\temp\"&$name1&"RootCA.crt")) Then
+        logging("Error", "RootCA does not exist", 1, false, true,16, false)
+        Return false
+    endif
+
+    If(GUICtrlRead($first_tf_passphrase) = "") Then
+        logging("Error", "Please enter the passhrase for ", 1, false, true,16, false)
+        Return false
+    endif
+
+    return true
 EndFunc

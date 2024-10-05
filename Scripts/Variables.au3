@@ -27,7 +27,6 @@ $name3_values_maximum_vss_hosts = getIniValue($iniFilePath,"name3|values","maxim
 $name3_default_expiration_certificate = getIniValue($iniFilePath,"name3|defaults","expiration_certificate")
 $name3_values_max_expiration_certificate = getIniValue($iniFilePath,"name3|values","maximum_expiration_certificate")
 
-
 ;Windows parameters
 $gui_width = 600
 $gap_left = 15
@@ -35,4 +34,4 @@ $global_settings_group = 200
 $first_group_height = 185
 $secound_group_height = 350
 $third_group_height = 470
-$fourth_group_height = 210
+$fourth_group_height = 350

@@ -229,7 +229,6 @@ Func changeCSRButtonState(ByRef $csrButton, $arrayOfElements)
         For $i = 0 To UBound($arrayOfElements)-1 Step +1
             GUICtrlSetState($arrayOfElements[$i],$GUI_DISABLE)
         Next
-    
     Else
         GUICtrlSetData($csrButton,"CSR-Only-Off")
         GUICtrlSetBkColor($csrButton, $COLOR_RED)
@@ -272,6 +271,11 @@ EndIf
 EndFunc
 
 Func addEntryToListView(Byref $inputGUI_comboBox_locations, Byref $inputGUI_inputBox_one, Byref $inputGUI_inputBox_two, ByRef $mainListview, Byref $secondListView)
+    If(GUICtrlRead($inputGUI_comboBox_locations) = "") Then
+        MsgBox(48,"Warning","Please choose a location. If you want to add a loaction, you have to add an IP-Address")
+        return 0
+    endif
+    
     If(GUICtrlRead($inputGUI_comboBox_locations) = "Add for new location") Then
         If(GUICtrlRead($inputGUI_inputBox_one) = "" Or GUICtrlRead($inputGUI_inputBox_two) = "") Then
             MsgBox(48,"Warning","Please enter all information")
@@ -319,6 +323,7 @@ EndFunc
 
 Func deleteEntryFromListView(ByRef $mainListview, ByRef $locations_array, $arrayofListViews = "")
     If(UBound(_GUICtrlListView_GetSelectedIndices($mainListview,true)) <= 1) Then 
+        MsgBox(64,"Info","Please selected an entry")
         return 0
     endif
 
@@ -355,4 +360,24 @@ Func deleteEntryFromListView(ByRef $mainListview, ByRef $locations_array, $array
             Next
         Next
     endif
+EndFunc
+
+Func changeEntryToListView(Byref $inputGUI_comboBox_locations, Byref $inputGUI_inputBox_one, ByRef $mainListview)
+    If(GUICtrlRead($inputGUI_inputBox_one) = "") Then
+        MsgBox(48,"Warning","Please enter all information")
+        return 0
+    endif
+    If(UBound(_GUICtrlListView_GetSelectedIndices($mainListview,true)) <= 1) Then 
+        MsgBox(64,"Info","Please selected an entry. You can add a common name by adding an IP-Address")
+        return 0
+    endif
+    $change = StringSplit(_GUICtrlListView_GetSelectedIndices($mainListview),"|")
+    _ArrayDelete($change,0)
+    $change_location = _GUICtrlListView_GetItemText($mainListview, Number($change[0]), 0)
+    _GUICtrlListView_DeleteItem($mainListview,$change[0])
+
+
+    GUICtrlCreateListViewItem($change_location&"|"&GUICtrlRead($inputGUI_inputBox_one),$mainListview)
+
+    Return 1
 EndFunc
