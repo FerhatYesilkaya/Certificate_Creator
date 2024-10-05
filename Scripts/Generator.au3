@@ -628,18 +628,3 @@ Func third_group_do_steps()
             
     Next
 EndFunc
-
-Func checkIfNecessaryDataExists($mode)
-
-    If Not (FileExists(GoBack(@ScriptDir,1)&"\temp\"&$name1&"RootCA.crt")) Then
-        logging("Error", "RootCA does not exist", 1, false, true,16, false)
-        Return false
-    endif
-
-    If(GUICtrlRead($first_tf_passphrase) = "") Then
-        logging("Error", "Please enter the passhrase for ", 1, false, true,16, false)
-        Return false
-    endif
-
-    return true
-EndFunc
