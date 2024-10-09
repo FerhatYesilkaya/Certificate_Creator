@@ -9,6 +9,8 @@
 #include <GUIScrollbars_Ex.au3>
 #include <GuiComboBox.au3>
 #include <GuiComboBoxEx.au3>
+#include <WindowsConstants.au3>
+#include <WinAPI.au3>
 #include "Variables.au3"
 #RequireAdmin
 
@@ -17,6 +19,7 @@ Local $inputGUI_inputBox_ip
 Local $inputGUI_inputBox_dns
 Local $inputGUI_inputBox_common_name
 Local $vss_locations[0]
+Local $wasFocused = False  ; Tracks whether the specific input had focus
 
         ; Create a GUI with various controls
         Local $hGUI = GUICreate("Cert-Generator", $gui_width+20, 500)
@@ -25,7 +28,7 @@ Local $vss_locations[0]
         GUICtrlCreateGroup("Global",5,5,$gui_width-10,$global_settings_group-15)
         GUICtrlSetFont(-1,11,700)
         GUICtrlCreateLabel("OpenSSL Folder",$gap_left,30,200)
-        $global_settings_tf_openssl_directory = GUICtrlCreateInput($name1_default_openssl_directory,$gap_left,50,200,20,$ES_READONLY)
+        $global_settings_tf_openssl_directory = GUICtrlCreateInput($global_default_openssl_directory,$gap_left,50,200,20,$ES_READONLY)
         $global_settings_btn_choose_lab_hub_directory = GUICtrlCreateButton("Directory",$gap_left+210,50, 100, 20)
 
         $global_settings_checkbox_name1 = GUICtrlCreateCheckbox("Create "&$name1,$gap_left,80)
@@ -57,6 +60,7 @@ Local $vss_locations[0]
 
         GUICtrlCreateLabel("Private key passphrase",$gap_left,$global_settings_group+80,200,25)
         local $first_tf_passphrase = GUICtrlCreateInput("",$gap_left,$global_settings_group+100,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
+    
         $first_rb_show_password = GUICtrlCreateCheckbox("Show Password",210+$gap_left,$global_settings_group+100)
         local $first_sDefaultPassChar = GUICtrlSendMsg($first_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
@@ -93,12 +97,12 @@ Local $vss_locations[0]
         For $i = 0 To $name2_values_max_expiration_certificate Step +1
             $second_data_string = $second_data_string & "|" & String($i)
         Next
-        GUICtrlSetData($second_cb_certificate_expiration,$second_data_string,getIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",getIniValue($iniFilePath,"name2|defaults","expiration_certificate")))
+        GUICtrlSetData($second_cb_certificate_expiration,$second_data_string,$name2_default_expiration_certificate)
         $second_expiration_date_readable = GUICtrlCreateLabel("Test",$gap_left+210,$global_settings_group+$first_group_height+168,200)
         calculateReadableExpiration($second_expiration_date_readable,$second_cb_certificate_expiration)
 
         GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+195,200,25)
-        local $second_tf_passphrase = GUICtrlCreateInput(getIniValue($iniFilePath,"temporary_values","passphrase"),$gap_left,$global_settings_group+$first_group_height+215,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
+        local $second_tf_passphrase = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+215,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
         $second_rb_show_password = GUICtrlCreateCheckbox("Show Password",$gap_left+210,$global_settings_group+$first_group_height+215)
         $second_sDefaultPassChar = GUICtrlSendMsg($second_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
@@ -138,18 +142,18 @@ Local $vss_locations[0]
 
 
         GUICtrlCreateLabel("Certificate expiration (months)",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+370,200)
-        $third_cb_certificate_expiration = GUICtrlCreateCombo(getIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",$name3_default_expiration_certificate),$gap_left,$global_settings_group+$first_group_height+$secound_group_height+390,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
+        $third_cb_certificate_expiration = GUICtrlCreateCombo($name3_default_expiration_certificate,$gap_left,$global_settings_group+$first_group_height+$secound_group_height+390,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
         $third_data_string = ""
         For $i = 0 To $name3_values_max_expiration_certificate-1 Step +1
             $third_data_string = $third_data_string & "|" & String($i+1)
         Next
-        GUICtrlSetData($third_cb_certificate_expiration,$third_data_string,getIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",getIniValue($iniFilePath,"name3|defaults","expiration_certificate")))
+        GUICtrlSetData($third_cb_certificate_expiration,$third_data_string,$name3_default_expiration_certificate)
         $third_expiration_date_readable = GUICtrlCreateLabel("Test",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+393,200)
         calculateReadableExpiration($third_expiration_date_readable,$third_cb_certificate_expiration)
 
 
         GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+420,200,25)
-        local $third_tf_passphrase = GUICtrlCreateInput(getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","temporary_values","passphrase"),$gap_left,$global_settings_group+$first_group_height+$secound_group_height+440,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
+        local $third_tf_passphrase = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+440,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
         $third_rb_show_password = GUICtrlCreateCheckbox("Show Password",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+440)
         $third_sDefaultPassChar = GUICtrlSendMsg($third_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
@@ -182,15 +186,15 @@ Local $vss_locations[0]
         GUICtrlCreateLabel("Certificate expiration (months)",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+160,200)
         $fourth_cb_certificate_expiration = GUICtrlCreateCombo("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+180,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
         $fourth_data_string = ""
-        For $i = 0 To $name3_values_max_expiration_certificate Step +1
-            $fourth_data_string = $fourth_data_string & "|" & String($i)
+        For $i = 0 To $name4_values_max_expiration_certificate-1 Step +1
+            $fourth_data_string = $fourth_data_string & "|" & String($i+1)
         Next
-        GUICtrlSetData($fourth_cb_certificate_expiration,$fourth_data_string,getIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",getIniValue($iniFilePath,"name2|defaults","expiration_certificate")))
+        GUICtrlSetData($fourth_cb_certificate_expiration,$fourth_data_string,$name4_default_expiration_certificate)
         $fourth_expiration_date_readable = GUICtrlCreateLabel("Test",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+188,200)
         calculateReadableExpiration($fourth_expiration_date_readable,$fourth_cb_certificate_expiration)
 
         GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+205,200,25)
-        local $fourth_tf_passphrase = GUICtrlCreateInput(getIniValue($iniFilePath,"temporary_values","passphrase"),$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+225,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
+        local $fourth_tf_passphrase = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+225,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
         $fourth_rb_show_password = GUICtrlCreateCheckbox("Show Password",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+225)
         $fourth_sDefaultPassChar = GUICtrlSendMsg($second_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
@@ -198,7 +202,7 @@ Local $vss_locations[0]
         $fourth_tf_nplh_ip_address = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+265,200,20)
 
         GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+295,200,25)
-        local $fourth_tf_common_name = GUICtrlCreateInput(getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","name2|defaults","common_name"),$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+315,200,20)
+        local $fourth_tf_common_name = GUICtrlCreateInput($name4_default_common_name,$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+315,200,20)
         
         $fourth_create = GUICtrlCreateButton("Create",$gui_width-80,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+$fourth_group_height-20,70,30)
 
@@ -316,16 +320,39 @@ Local $vss_locations[0]
                             logging("Info", "Completed",1, false, true,64, false)
 
                 EndSwitch
-        WEnd
 
+                check_focus_of_first_passphrase_textfield()
+                WEnd
         ; Delete the previous GUI and all controls.
         GUIDelete($hGUI)
+
+
+Func set_data_to_other_passphrase_inputs()
+    GUICtrlSetData($second_tf_passphrase,GUICtrlRead($first_tf_passphrase))
+    GUICtrlSetData($third_tf_passphrase,GUICtrlRead($first_tf_passphrase))
+    GUICtrlSetData($third_tf_passphrase,GUICtrlRead($first_tf_passphrase))
+    GUICtrlSetData($fourth_tf_passphrase,GUICtrlRead($first_tf_passphrase))
+EndFunc
+
+Func check_focus_of_first_passphrase_textfield()
+    ; Get the handle of the currently focused control
+    Local $hFocus = _WinAPI_GetFocus()
+
+    ; Check if the specific input control has focus
+    If $hFocus = GUICtrlGetHandle($first_tf_passphrase) Then
+        $wasFocused = True  ; The specific input has focus
+    ElseIf $wasFocused Then
+        ; The specific input lost focus
+        set_data_to_other_passphrase_inputs()
+        $wasFocused = False  ; Reset the flag
+    EndIf
+EndFunc
 
 Func first_group_do_steps()
 
     ;WriteIniValue($iniFilePath,"temporary_values","open_ssl_path",GUICtrlRead($first_tf_openssl_directory))
-    WriteIniValue($iniFilePath,"temporary_values","passphrase",GUICtrlRead($first_tf_passphrase))
-    WriteIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",GUICtrlRead($first_cb_expiration_certificate))
+    ;WriteIniValue($iniFilePath,"temporary_values","passphrase",GUICtrlRead($first_tf_passphrase))
+    ;WriteIniValue($iniFilePath,"temporary_values","certificate_expiration_in_months",GUICtrlRead($first_cb_expiration_certificate))
     $t_openSSLPath = GUICtrlRead($global_settings_tf_openssl_directory)&'\openssl.exe'
     $t_openCNFPath = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
     $t_rocheCAPath = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"

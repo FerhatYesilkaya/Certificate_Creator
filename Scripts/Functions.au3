@@ -57,10 +57,10 @@ Func WriteIniValue($sFilePath, $sSection, $sKey, $sValue)
 EndFunc
 
 ; Funktion zum Auslesen von Werten aus einer INI-Datei
-Func getIniValue($sFilePath, $sSection, $sKey, $sDefault = "")
+Func getIniValue($sFilePath, $sSection, $sKey,$sDefault = "",$goBack=1)
     ; Überprüfen, ob die Datei existiert
     If Not FileExists($sFilePath) Then
-        logging("Error", "Ini-file does not exist: "&$sFilePath, false,true,16,true)
+        logging("Error", "Ini-file does not exist: "&$sFilePath,1, false,true,16,true)
         Return $sDefault
     EndIf
     
@@ -69,7 +69,7 @@ Func getIniValue($sFilePath, $sSection, $sKey, $sDefault = "")
     
     ; Überprüfen, ob der Schlüssel existiert
     If $sValue = $sDefault Then
-        logging("Warning", "The key '" & $sKey & "' in section '" & $sSection & "' was not found")
+        logging("Warning", "The key '" & $sKey & "' in section '" & $sSection & "' was not found",$goBack)
         Return $sDefault
     EndIf
     
