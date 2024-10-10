@@ -8,6 +8,7 @@
 #include "Scripts\Variables.au3"
 #RequireAdmin
 
+stopProcesses("openssl.exe")
 checkFilePath()
 ShellExecute(@ScriptDir&"\Scripts\Generator.au3")
 

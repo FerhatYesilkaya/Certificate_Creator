@@ -723,11 +723,10 @@ Func fourth_group_do_steps()
 
     if($t_passphrase = "") Then
         runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_Vantage_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_Vantage_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_ext&'"',$t_Vantage_crt,"CRT generated", "Could not generate CRT")
-        runOpenSSlCommand('"'&$t_openSSLPath&'" pkcs12 -export -inkey "'&$t_Vantage_key&'" -in "'&$t_Vantage_crt&'" -out "'&$t_Vantage_pfx&'"',$t_Vantage_pfx,"PFX generated", "Could not generate pfx-file")
     Else
         runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_Vantage_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_Vantage_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_ext&'" -passin pass:'&$t_passphrase,$t_Vantage_crt,"CRT generated", "Could not generate CRT")
-        runOpenSSlCommand('"'&$t_openSSLPath&'" pkcs12 -export -inkey "'&$t_Vantage_key&'" -in "'&$t_Vantage_crt&'" -out "'&$t_Vantage_pfx&'" -passout pass:'&$t_passphrase,$t_Vantage_pfx,"PFX generated", "Could not generate pfx-file")
     endif
+    runOpenSSlCommand('"'&$t_openSSLPath&'" pkcs12 -export -inkey "'&$t_Vantage_key&'" -in "'&$t_Vantage_crt&'" -out "'&$t_Vantage_pfx&'" -passout pass:'&$t_passphrase,$t_Vantage_pfx,"PFX generated", "Could not generate pfx-file")
 EndFunc
 
 Func third_createInputGUI(ByRef $listView, ByRef $secondListView,$title,$btnText,$labelOneDescription, $labelTwoDescriotiption = "", $addNewLocation = false, $disableComboBox=false, $mode = "Add")

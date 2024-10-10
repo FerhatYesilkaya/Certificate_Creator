@@ -402,3 +402,24 @@ Func addToSingleColumnList(ByRef $list)
         GUICtrlCreateListViewItem($value,$list)
     endif
 EndFunc
+
+Func stopProcesses($sProcessName)
+    ; Holen Sie sich die Liste aller Prozesse mit dem angegebenen Namen
+    Local $aProzesse = ProcessList($sProcessName)
+    
+    ; Überprüfen, ob Prozesse gefunden wurden
+    If @error Then
+        logging("Info","No process with the name: "&$sProcessName&" found",0)
+        Return
+    EndIf
+    
+    ; Durchlaufen der Prozesse und Beenden
+    For $i = 1 To UBound($aProzesse) - 1
+        ; Prozess-ID abrufen
+        Local $pid = $aProzesse[$i][1]
+        ; Prozess beenden
+        ProcessClose($pid)
+    Next
+    
+    logging("Info","Process with the name: "&$sProcessName&" stopped",0)
+EndFunc
