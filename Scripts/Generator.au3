@@ -113,7 +113,7 @@ Local $rootCAhasNoPassphrase = false
         $second_sDefaultPassChar = GUICtrlSendMsg($second_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
         GUICtrlCreateLabel("nPLH/VConnect-Server IP",$gap_left,$global_settings_group+$first_group_height+245)
-        $second_tf_nplh_ip_address = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+265,200,20)
+        $second_tf_nplh_ip_address = GUICtrlCreateInput($name2_default_ip_address,$gap_left,$global_settings_group+$first_group_height+265,200,20)
 
         GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+$first_group_height+295,200,25)
         GUICtrlSetTip(-1, $common_name_tool_tip_text,"Info",1,1)
@@ -210,7 +210,7 @@ Local $rootCAhasNoPassphrase = false
         $fourth_sDefaultPassChar = GUICtrlSendMsg($second_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
         GUICtrlCreateLabel("nPLA/Vantage-Server IP",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+260)
-        $fourth_tf_npla_ip_address = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+280,200,20)
+        $fourth_tf_npla_ip_address = GUICtrlCreateInput($name4_default_ip_address,$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+280,200,20)
 
         GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+310,200,25)
         GUICtrlSetTip(-1, $common_name_tool_tip_text,"Info",1,1)
