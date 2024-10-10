@@ -387,7 +387,11 @@ Local $rootCAhasNoPassphrase = false
                             GUICtrlSetData($fourth_create,"Create")
 
                         Case $global_start_btn
-                            GUICtrlSetData($global_start_btn,"Creating...")
+                            If(GUICtrlRead($global_settings_checkbox_name1) = 1 OR GUICtrlRead($global_settings_checkbox_name2) = 1 OR GUICtrlRead($global_settings_checkbox_name3) = 1 OR GUICtrlRead($global_settings_checkbox_name4) = 1) Then
+                                GUICtrlSetData($global_start_btn,"Creating...")
+                            else
+                                ContinueCase
+                            endif
                             If(GUICtrlRead($global_settings_checkbox_name1) = 1) Then
                                 if(firstGroupCheckIfAllDataEntered()) Then
                                     logging("Info", "Starting "&$name1&" steps",1)
