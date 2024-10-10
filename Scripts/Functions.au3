@@ -321,6 +321,20 @@ Func addEntryToListView(Byref $inputGUI_comboBox_locations, Byref $inputGUI_inpu
     endif
 EndFunc
 
+Func AddDNSLinesToFile(ByRef $list, $filepath)
+
+    Local $length = _GUICtrlListView_GetItemCount($list)
+
+    If($length = 0) Then 
+        return 0
+    endif
+
+    For $i = 0 To $length-1 Step +1
+        $item = _GUICtrlListView_GetItem($list,$i)
+        FileWriteLine($filepath,"DNS."&$i+1&" = "&$item[3])
+    Next
+EndFunc
+
 Func deleteEntryFromListView(ByRef $mainListview, ByRef $locations_array, $arrayofListViews = "")
     If(UBound(_GUICtrlListView_GetSelectedIndices($mainListview,true)) <= 1) Then 
         MsgBox(64,"Info","Please selected an entry")
@@ -380,4 +394,11 @@ Func changeEntryToListView(Byref $inputGUI_comboBox_locations, Byref $inputGUI_i
     GUICtrlCreateListViewItem($change_location&"|"&GUICtrlRead($inputGUI_inputBox_one),$mainListview)
 
     Return 1
+EndFunc
+
+Func addToSingleColumnList(ByRef $list)
+    $value = InputBox("DNS", "Enter DNS-Information:")
+    if Not ($value = "") Then
+        GUICtrlCreateListViewItem($value,$list)
+    endif
 EndFunc

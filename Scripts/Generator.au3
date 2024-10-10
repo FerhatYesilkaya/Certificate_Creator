@@ -20,9 +20,10 @@ Local $inputGUI_inputBox_dns
 Local $inputGUI_inputBox_common_name
 Local $vss_locations[0]
 Local $wasFocused = False  ; Tracks whether the specific input had focus
+Local $rootCAhasNoPassphrase = false
 
         ; Create a GUI with various controls
-        Local $hGUI = GUICreate("Cert-Generator", $gui_width+20, 500)
+        Local $hGUI = GUICreate("Configuration", $gui_width+20, 500)
 
         ;Global Settings - Start
         GUICtrlCreateGroup("Global",5,5,$gui_width-10,$global_settings_group-15)
@@ -44,6 +45,7 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
         $first_group = GUICtrlCreateGroup($name1,5,$global_settings_group,$gui_width-10, $first_group_height)
         GUICtrlSetFont(-1,11,700)
         GUICtrlCreateLabel("Choose expiration of certificate (months)",$gap_left,30+$global_settings_group)
+        GUICtrlSetTip(-1, $expiration_date_tool_tip_text,"Info",1,1)
         $first_cb_expiration_certificate = GUICtrlCreateCombo("",$gap_left,50+$global_settings_group,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
         $first_data_string = ""
         For $i = 0 To $name1_values_max_expiration_certificate-1 Step +1
@@ -59,12 +61,14 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
         calculateReadableExpiration($first_expiration_date_readable,$first_cb_expiration_certificate)
 
         GUICtrlCreateLabel("Private key passphrase",$gap_left,$global_settings_group+80,200,25)
+        GUICtrlSetTip(-1, $private_key_tool_tip_text,"Info",1,1)
         local $first_tf_passphrase = GUICtrlCreateInput("",$gap_left,$global_settings_group+100,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
     
         $first_rb_show_password = GUICtrlCreateCheckbox("Show Password",210+$gap_left,$global_settings_group+100)
         local $first_sDefaultPassChar = GUICtrlSendMsg($first_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
         GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+130,200,25)
+        GUICtrlSetTip(-1, $common_name_tool_tip_text,"Info",1,1)
         local $first_tf_common_name = GUICtrlCreateInput($name1_default_common_name,$gap_left,$global_settings_group+150,200,20)
 
         $first_create = GUICtrlCreateButton("Create",$gui_width-80,$global_settings_group+$first_group_height-40,70,30)
@@ -77,11 +81,12 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
         GUICtrlSetFont(-1,11,700)
 
         $second_do_csr_only_btn = GUICtrlCreateButton("CSR-Only-Off",$gui_width-95,$global_settings_group+$first_group_height+30,85,30)
+        GUICtrlSetTip(-1, $csr_tool_tip_text,"Info",1,1)
         GUICtrlSetBkColor(-1,$COLOR_RED)
 
 
         GUICtrlCreateLabel("DNS",$gap_left,$global_settings_group+$first_group_height+35,200,25)
-
+        GUICtrlSetTip(-1, $dns_tool_tip_text,"Info",1,1)
         $second_list_view = GUICtrlCreateListView("DNS", $gap_left,$global_settings_group+$first_group_height+55,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
         $second_add_to_list = GUICtrlCreateButton("Add",$gap_left+310,$global_settings_group+$first_group_height+60,70)
         $second_delete_from_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+100,70)
@@ -102,6 +107,7 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
         calculateReadableExpiration($second_expiration_date_readable,$second_cb_certificate_expiration)
 
         GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+195,200,25)
+        GUICtrlSetTip(-1, $ca_passphrase_tool_tip_text,"Info",1,1)
         local $second_tf_passphrase = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+215,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
         $second_rb_show_password = GUICtrlCreateCheckbox("Show Password",$gap_left+210,$global_settings_group+$first_group_height+215)
         $second_sDefaultPassChar = GUICtrlSendMsg($second_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
@@ -110,6 +116,7 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
         $second_tf_nplh_ip_address = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+265,200,20)
 
         GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+$first_group_height+295,200,25)
+        GUICtrlSetTip(-1, $common_name_tool_tip_text,"Info",1,1)
         local $second_tf_common_name = GUICtrlCreateInput(getIniValue(GoBack(@ScriptDir,1)&"\configurables.ini","name2|defaults","common_name"),$gap_left,$global_settings_group+$first_group_height+315,200,20)
         
         $second_create = GUICtrlCreateButton("Create",$gui_width-80,$global_settings_group+$first_group_height+$secound_group_height-30,70,30)
@@ -132,11 +139,13 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
         $third_delete_from_ip_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+105,70)
 
         GUICtrlCreateLabel("DNS",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+150,200,25)
+        GUICtrlSetTip(-1, $dns_tool_tip_text,"Info",1,1)
         $third_dns_list_view = GUICtrlCreateListView("Location|DNS", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+165,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
         $third_add_to_dns_list = GUICtrlCreateButton("Add",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+175,70)
         $third_delete_from_dns_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+215,70)
 
-        GUICtrlCreateLabel("Common-Name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+260,200,25)
+        GUICtrlCreateLabel("Common Name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+260,200,25)
+        GUICtrlSetTip(-1, $common_name_tool_tip_text,"Info",1,1)
         $third_list_common_name_view = GUICtrlCreateListView("Location|Common Name", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+275,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
         $third_change_cn_list = GUICtrlCreateButton("Change",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+275,70)        
 
@@ -153,6 +162,7 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
 
 
         GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+420,200,25)
+        GUICtrlSetTip(-1, $ca_passphrase_tool_tip_text,"Info",1,1)
         local $third_tf_passphrase = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+440,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
         $third_rb_show_password = GUICtrlCreateCheckbox("Show Password",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+440)
         $third_sDefaultPassChar = GUICtrlSendMsg($third_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
@@ -173,7 +183,7 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
 
 
         GUICtrlCreateLabel("DNS",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+50,200,25)
-
+        GUICtrlSetTip(-1, $dns_tool_tip_text,"Info",1,1)
         $fourth_list_view = GUICtrlCreateListView("DNS", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+70,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
         $fourth_add_to_list = GUICtrlCreateButton("Add",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+85,70)
         $fourth_delete_from_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+125,70)
@@ -190,19 +200,21 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
             $fourth_data_string = $fourth_data_string & "|" & String($i+1)
         Next
         GUICtrlSetData($fourth_cb_certificate_expiration,$fourth_data_string,$name4_default_expiration_certificate)
-        $fourth_expiration_date_readable = GUICtrlCreateLabel("Test",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+188,200)
+        $fourth_expiration_date_readable = GUICtrlCreateLabel("Test",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+183,200)
         calculateReadableExpiration($fourth_expiration_date_readable,$fourth_cb_certificate_expiration)
 
-        GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+205,200,25)
-        local $fourth_tf_passphrase = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+225,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
-        $fourth_rb_show_password = GUICtrlCreateCheckbox("Show Password",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+225)
+        GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+210,200,25)
+        GUICtrlSetTip(-1, $ca_passphrase_tool_tip_text,"Info",1,1)
+        local $fourth_tf_passphrase = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+230,200,20, BitOR($GUI_SS_DEFAULT_INPUT,$ES_PASSWORD))
+        $fourth_rb_show_password = GUICtrlCreateCheckbox("Show Password",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+230)
         $fourth_sDefaultPassChar = GUICtrlSendMsg($second_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
-        GUICtrlCreateLabel("nPLH/VConnect-Server IP",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+245)
-        $fourth_tf_nplh_ip_address = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+265,200,20)
+        GUICtrlCreateLabel("nPLA/Vantage-Server IP",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+260)
+        $fourth_tf_npla_ip_address = GUICtrlCreateInput("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+280,200,20)
 
-        GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+295,200,25)
-        local $fourth_tf_common_name = GUICtrlCreateInput($name4_default_common_name,$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+315,200,20)
+        GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+310,200,25)
+        GUICtrlSetTip(-1, $common_name_tool_tip_text,"Info",1,1)
+        local $fourth_tf_common_name = GUICtrlCreateInput($name4_default_common_name,$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+330,200,20)
         
         $fourth_create = GUICtrlCreateButton("Create",$gui_width-80,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+$fourth_group_height-20,70,30)
 
@@ -242,10 +254,18 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
                             showPassword($first_rb_show_password, $first_tf_passphrase, $first_sDefaultPassChar)
 
                         Case $first_create
-                            first_group_do_steps()
-                            logging("Info", "Completed",1, false, true,64, false)
+                            GUICtrlSetData($first_create,"Creating...")
+                            If(firstGroupCheckIfAllDataEntered()) Then
+                                first_group_do_steps()
+                                logging("Info", "Completed",1, false, true,64, false)
+                            else
+                                logging("Warning", $name1&" - Not all information entered. Execution aborted",1, false, false,48, false)
+
+                            endif
+                            GUICtrlSetData($first_create,"Create")
+
                         Case $second_add_to_list
-                            secondAddDNS()
+                            addToSingleColumnList($second_list_view)
                         Case $second_delete_from_list
                             deleteEntryFromListView($second_list_view,$vss_locations)
 
@@ -256,8 +276,15 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
                             calculateReadableExpiration($second_expiration_date_readable,$second_cb_certificate_expiration)
             
                         Case $second_create
-                            second_group_do_steps()
-                            logging("Info", "Completed",1, false, true,64, false)
+                            GUICtrlSetData($second_create,"Creating...")
+                            If(secondGroupCheckIfAllDataEntered()) Then
+                                second_group_do_steps()
+                                logging("Info", "Completed",1, false, true,64, false)
+                            else
+                                logging("Warning", $name2&" - Not all information entered. Execution aborted",1, false, false,48, false)
+
+                            endif
+                            GUICtrlSetData($second_create,"Create")
 
                         Case $second_do_csr_only_btn
                             _GUICtrlListView_DeleteAllItems(GUICtrlGetHandle($second_list_view))
@@ -316,9 +343,95 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
 
                             ;changeEntryToListView($inputGUI_comboBox_locations, $inputGUI_inputBox_one, $inputGUI_inputBox_two, $third_list_common_name_view)
                         Case $third_create
-                            third_group_do_steps()
-                            logging("Info", "Completed",1, false, true,64, false)
+                            GUICtrlSetData($third_create,"Creating...")
+                            If(thirdGroupCheckIfAllDataEntered()) Then
+                                third_group_do_steps()
+                                logging("Info", "Completed",1, false, true,64, false)
+                            else
+                                logging("Warning", $name3&" - Not all information entered. Execution aborted",1, false, false,48, false)
+                            endif
+                            GUICtrlSetData($third_create,"Create")
 
+                        Case $fourth_cb_certificate_expiration
+                            calculateReadableExpiration($fourth_expiration_date_readable,$fourth_cb_certificate_expiration)
+
+                        Case $fourth_add_to_list
+                            addToSingleColumnList($fourth_list_view)
+                        
+                        Case $fourth_delete_from_list
+                            deleteEntryFromListView($fourth_list_view,$vss_locations)
+
+                        Case $fourth_rb_show_password
+                            showPassword($fourth_rb_show_password, $fourth_tf_passphrase, $fourth_sDefaultPassChar)
+
+                        Case $fourth_do_csr_only_btn
+                            _GUICtrlListView_DeleteAllItems(GUICtrlGetHandle($fourth_list_view))
+                            Local $array[0]
+                            $array = ArrayExpand($array, $fourth_add_to_list)
+                            $array = ArrayExpand($array, $fourth_delete_from_list)
+                            $array = ArrayExpand($array, $fourth_list_view)
+                            $array = ArrayExpand($array, $fourth_cb_certificate_expiration)
+                            $array = ArrayExpand($array, $fourth_tf_passphrase)
+                            $array = ArrayExpand($array, $fourth_rb_show_password)
+                            $array = ArrayExpand($array, $fourth_tf_npla_ip_address)
+                            changeCSRButtonState($fourth_do_csr_only_btn,$array)
+
+                        Case $fourth_create
+                            GUICtrlSetData($fourth_create,"Creating...")
+                            If(fourthGroupCheckIfAllDataEntered()) Then
+                                fourth_group_do_steps()
+                                logging("Info", "Completed",1, false, true,64, false)
+                            else
+                                logging("Warning", $name4&" - Not all information entered. Execution aborted",1, false, false,48, false)
+                            endif
+                            GUICtrlSetData($fourth_create,"Create")
+
+                        Case $global_start_btn
+                            GUICtrlSetData($global_start_btn,"Creating...")
+                            If(GUICtrlRead($global_settings_checkbox_name1) = 1) Then
+                                if(firstGroupCheckIfAllDataEntered()) Then
+                                    logging("Info", "Starting "&$name1&" steps",1)
+                                    first_group_do_steps()
+                                else
+                                    GUICtrlSetData($global_start_btn,"Create selected")
+                                    ContinueCase
+                                endif
+                            endif
+                            Sleep(1000)
+
+                            If(GUICtrlRead($global_settings_checkbox_name2) = 1) Then
+                                If(secondGroupCheckIfAllDataEntered()) Then 
+                                    logging("Info", "Starting "&$name2&" steps",1)
+                                    second_group_do_steps()
+                                else
+                                    GUICtrlSetData($global_start_btn,"Create selected")
+                                    ContinueCase
+                                endif
+                            endif
+                            Sleep(1000)
+
+                            If(GUICtrlRead($global_settings_checkbox_name3) = 1) Then
+                                If(thirdGroupCheckIfAllDataEntered()) Then 
+                                    logging("Info", "Starting "&$name3&" steps",1)
+                                    third_group_do_steps()
+                                else
+                                    GUICtrlSetData($global_start_btn,"Create selected")
+                                    ContinueCase
+                                endif
+                            endif
+                            Sleep(1000)
+
+                            If(GUICtrlRead($global_settings_checkbox_name4) = 1 AND fourthGroupCheckIfAllDataEntered() = true) Then
+                                If(fourthGroupCheckIfAllDataEntered()) Then 
+                                    logging("Info", "Starting "&$name4&" steps",1)
+                                    fourth_group_do_steps()
+                                else
+                                    GUICtrlSetData($global_start_btn,"Create selected")
+                                    ContinueCase
+                                endif
+                            endif
+                            GUICtrlSetData($global_start_btn,"Create selected")
+                            logging("Info", "Completed",1, false, true,64, false)
                 EndSwitch
 
                 check_focus_of_first_passphrase_textfield()
@@ -330,8 +443,150 @@ Local $wasFocused = False  ; Tracks whether the specific input had focus
 Func set_data_to_other_passphrase_inputs()
     GUICtrlSetData($second_tf_passphrase,GUICtrlRead($first_tf_passphrase))
     GUICtrlSetData($third_tf_passphrase,GUICtrlRead($first_tf_passphrase))
-    GUICtrlSetData($third_tf_passphrase,GUICtrlRead($first_tf_passphrase))
     GUICtrlSetData($fourth_tf_passphrase,GUICtrlRead($first_tf_passphrase))
+EndFunc
+
+Func firstGroupCheckIfAllDataEntered()
+    If Not (FileExists(GUICtrlRead($global_settings_tf_openssl_directory)&"\openssl.exe")) Then
+        logging("Error", "Could not find openssl.exe in:  "&GUICtrlRead($global_settings_tf_openssl_directory),1, false, true,16, false)
+        return false
+    endif
+
+    If(GUICtrlRead($first_tf_passphrase) = "" AND $rootCAhasNoPassphrase = false) Then
+        $verify = MsgBox(68, "", "Do you really want to create a Root CA without a passphrase?")
+        If($verify = 7) Then
+            return false
+        else
+            $rootCAhasNoPassphrase = true
+        endif
+    endif
+
+    If(GUICtrlRead($first_cb_expiration_certificate) = "") Then
+        MsgBox(48,$name1,"Please choose a expiration date from the dropdown")
+        return false
+    endif
+
+    If(GUICtrlRead($first_tf_common_name) = "") Then
+        MsgBox(48,$name1,"Please enter a common name")
+        return false
+    endif
+
+    return true
+EndFunc
+
+Func secondGroupCheckIfAllDataEntered()
+    If Not (FileExists(GUICtrlRead($global_settings_tf_openssl_directory)&"\openssl.exe")) Then
+        logging("Error", "Could not find openssl.exe in:  "&GUICtrlRead($global_settings_tf_openssl_directory),1, false, true,16, false)
+        return false
+    endif
+
+    If(GUICtrlRead($second_tf_passphrase) = "" AND $rootCAhasNoPassphrase = false AND GUICtrlRead($second_do_csr_only_btn) = "CSR-Only-Off") Then
+        $verify = MsgBox(68, "", "Are you sure that the CA certificate has no passphrase?")
+        If($verify = 7) Then
+            return false
+        else
+            $rootCAhasNoPassphrase = true
+        endif
+    endif
+
+    If(_GUICtrlListView_GetItemCount($second_list_view) < $name2_values_minimum_dns_entries AND GUICtrlRead($second_do_csr_only_btn) = "CSR-Only-Off") Then
+        MsgBox(48,$name2,"Please enter min: "&$name2_values_minimum_dns_entries &" DNS entries")
+        return false
+    endif
+
+    If(GUICtrlRead($second_cb_certificate_expiration) = "" AND GUICtrlRead($second_do_csr_only_btn) = "CSR-Only-Off") Then
+        MsgBox(48,$name2,"Please choose a expiration date from the dropdown")
+        return false
+    endif
+
+    If(GUICtrlRead($second_tf_nplh_ip_address) = "" AND GUICtrlRead($second_do_csr_only_btn) = "CSR-Only-Off") Then
+        MsgBox(48,$name2,"Please enter a nPLH/VConnect IP-Address")
+        return false
+    endif
+
+    If(GUICtrlRead($second_tf_common_name) = "") Then
+        MsgBox(48,$name2,"Please enter a common name")
+        return false
+    endif
+
+    return true
+EndFunc
+
+
+Func thirdGroupCheckIfAllDataEntered()
+    If Not (FileExists(GUICtrlRead($global_settings_tf_openssl_directory)&"\openssl.exe")) Then
+        logging("Error", "Could not find openssl.exe in:  "&GUICtrlRead($global_settings_tf_openssl_directory),1, false, true,16, false)
+        return false
+    endif
+
+    If(GUICtrlRead($third_tf_passphrase) = "" AND $rootCAhasNoPassphrase = false AND GUICtrlRead($third_do_csr_only_btn) = "CSR-Only-Off") Then
+        $verify = MsgBox(68, "", "Are you sure that the CA certificate has no passphrase?")
+        If($verify = 7) Then
+            return false
+        else
+            $rootCAhasNoPassphrase = true
+        endif
+    endif
+
+    If(GUICtrlRead($third_cb_certificate_expiration) = "" AND GUICtrlRead($third_do_csr_only_btn) = "CSR-Only-Off") Then
+        MsgBox(48,$name3,"Please choose a expiration date from the dropdown")
+        return false
+    endif
+
+    If(_GUICtrlListView_GetItemCount($third_list_ip_view) < $name3_values_minimum_ip_entries) Then
+        MsgBox(48,$name3,"Please enter min: "&$name3_values_minimum_ip_entries &" IP Address")
+        return false
+    endif
+
+    If(_GUICtrlListView_GetItemCount($third_list_common_name_view) < $name3_values_minimum_ip_entries) Then
+        MsgBox(48,$name3,"Please enter min: "&$name3_values_minimum_ip_entries &" common name entries")
+        return false
+    endif
+
+    If(_GUICtrlListView_GetItemCount($third_dns_list_view) < $name3_values_minimum_dns_entries AND GUICtrlRead($third_do_csr_only_btn) = "CSR-Only-Off") Then
+        MsgBox(48,$name3,"Please enter min: "&$name3_values_minimum_dns_entries &" DNS entries")
+        return false
+    endif
+
+    return true
+EndFunc
+
+Func fourthGroupCheckIfAllDataEntered()
+    If Not (FileExists(GUICtrlRead($global_settings_tf_openssl_directory)&"\openssl.exe")) Then
+        logging("Error", "Could not find openssl.exe in:  "&GUICtrlRead($global_settings_tf_openssl_directory),1, false, true,16, false)
+        return false
+    endif
+
+    If(GUICtrlRead($fourth_tf_passphrase) = "" AND $rootCAhasNoPassphrase = false AND GUICtrlRead($fourth_do_csr_only_btn) = "CSR-Only-Off") Then
+        $verify = MsgBox(68, "", "Are you sure that the CA certificate has no passphrase?")
+        If($verify = 7) Then
+            return false
+        else
+            $rootCAhasNoPassphrase = true
+        endif
+    endif
+
+    If(_GUICtrlListView_GetItemCount($fourth_list_view) < $name4_values_minimum_dns_entries AND GUICtrlRead($fourth_do_csr_only_btn) = "CSR-Only-Off") Then
+        MsgBox(48,$name4,"Please enter min: "&$name4_values_minimum_dns_entries &" DNS entries")
+        return false
+    endif
+
+    If(GUICtrlRead($fourth_cb_certificate_expiration) = "" AND GUICtrlRead($fourth_do_csr_only_btn) = "CSR-Only-Off") Then
+        MsgBox(48,$name4,"Please choose a expiration date from the dropdown")
+        return false
+    endif
+
+    If(GUICtrlRead($fourth_tf_npla_ip_address) = "" AND GUICtrlRead($fourth_do_csr_only_btn) = "CSR-Only-Off") Then
+        MsgBox(48,$name4,"Please enter a nPLA/Vantage IP-Address")
+        return false
+    endif
+
+    If(GUICtrlRead($fourth_tf_common_name) = "") Then
+        MsgBox(48,$name4,"Please enter a common name")
+        return false
+    endif
+
+    return true
 EndFunc
 
 Func check_focus_of_first_passphrase_textfield()
@@ -381,13 +636,6 @@ Func first_group_do_steps()
     runOpenSSlCommand('"'&$t_openSSLPath&'" req -x509 -new -nodes -key "'&$t_rocheCAPath&'" -sha256 -days '&$t_expiration_certificate&' -out "'&$t_rocheCRTPath&'" -passin pass:'&$t_passphrase&' -config "'&GoBack(@ScriptDir,1)&"\data\openssl.cnf"&'"',$t_rocheCRTPath,"Certificate generated", "Could not generate certificate")
 EndFunc
 
-Func secondAddDNS()
-    $value = InputBox("DNS", "Enter DNS-Information:")
-    if Not ($value = "") Then
-        GUICtrlCreateListViewItem($value,$second_list_view)
-    endif
-EndFunc
-
 Func second_group_do_steps()
     $apache_path = GUICtrlRead($global_settings_tf_openssl_directory)
     $t_common_name = GUICtrlRead($second_tf_common_name)
@@ -423,7 +671,7 @@ Func second_group_do_steps()
 
     FileWriteLine($t_ext,"IP.1 = "&$t_nplh_ip_address)
 
-    secondAddDNSLinesToFile()
+    AddDNSLinesToFile($second_list_view,$t_ext)
 
     if($t_passphrase = "") Then
         runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_VConnect_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_VConnect_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_ext&'"',$t_VConnect_crt,"CRT generated", "Could not generate CRT")
@@ -434,18 +682,52 @@ Func second_group_do_steps()
 
 EndFunc
 
-Func secondAddDNSLinesToFile()
 
-    Local $length = _GUICtrlListView_GetItemCount($second_list_view)
+Func fourth_group_do_steps()
+    $apache_path = GUICtrlRead($global_settings_tf_openssl_directory)
+    $t_common_name = GUICtrlRead($fourth_tf_common_name)
+    $t_nplh_ip_address = GUICtrlRead($fourth_tf_npla_ip_address)
+    $t_openSSLPath = GUICtrlRead($global_settings_tf_openssl_directory)&'\openssl.exe'
+    $t_Vantage_key = GoBack(@ScriptDir,1)&"\temp\"&$name4&"\Vantage.key"
+    $t_Vantage_csr = GoBack(@ScriptDir,1)&"\temp\"&$name4&"\Vantage.csr"
+    $t_Vantage_crt = GoBack(@ScriptDir,1)&"\temp\"&$name4&"\Vantage.crt"
+    $t_Vantage_pfx = GoBack(@ScriptDir,1)&"\temp\"&$name4&"\Vantage.pfx"
+    $t_roche_ca_crt = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.crt"
+    $t_roche_ca_key = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
+    $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
+    $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl.cnf"
+    $t_certificate_expiration_in_days = GUICtrlRead($fourth_cb_certificate_expiration)*30
+    $t_passphrase = GUICtrlRead($fourth_tf_passphrase)
+    $t_vanilla_ext = GoBack(@ScriptDir,1)&"\data\vanilla\Vantage.ext"
+    $t_ext = GoBack(@ScriptDir,1)&"\data\Vantage.ext"
 
-    If($length = 0) Then 
+    ExecuteCMD('set OPENSSL_CONF='&GoBack($apache_path,1)&'\conf\openssl.cnf')
+
+    FileCopy($t_vanilla_openssl_cnf,GoBack(@ScriptDir,1)&"\data",1)
+
+    ReplaceStringInFile($t_openssl_cnf,"CN = default","CN = "&$t_common_name)
+
+	runOpenSSlCommand('"'&$t_openSSLPath&'" genrsa -out "'&$t_Vantage_key&'" 2048',$t_Vantage_key,"Private key generated", "Private key could not be generated")
+
+    runOpenSSlCommand('"'&$t_openSSLPath&'" req -new -key "'&$t_Vantage_key&'" -out "'&$t_Vantage_csr&'" -config "'&$t_openssl_cnf&'"',$t_Vantage_csr,"CSR generated", "Could not CSR file")
+
+    If(GUICtrlRead($fourth_do_csr_only_btn) = "CSR-Only-On") Then
         return 0
     endif
 
-    For $i = 0 To $length-1 Step +1
-        $item = _GUICtrlListView_GetItem($second_list_view,$i)
-        FileWriteLine(GoBack(@ScriptDir,1)&"\data\VConnect.ext","DNS."&$i+1&" = "&$item[3])
-    Next
+    FileCopy($t_vanilla_ext,GoBack(@ScriptDir,1)&"\data",1)
+
+    FileWriteLine($t_ext,"IP.1 = "&$t_nplh_ip_address)
+
+    AddDNSLinesToFile($fourth_list_view,$t_ext)
+
+    if($t_passphrase = "") Then
+        runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_Vantage_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_Vantage_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_ext&'"',$t_Vantage_crt,"CRT generated", "Could not generate CRT")
+        runOpenSSlCommand('"'&$t_openSSLPath&'" pkcs12 -export -inkey "'&$t_Vantage_key&'" -in "'&$t_Vantage_crt&'" -out "'&$t_Vantage_pfx&'"',$t_Vantage_pfx,"PFX generated", "Could not generate pfx-file")
+    Else
+        runOpenSSlCommand('"'&$t_openSSLPath&'" x509 -req -in "'&$t_Vantage_csr&'" -CA "'&$t_roche_ca_crt&'" -CAkey "'&$t_roche_ca_key&'" -CAcreateserial -out "'&$t_Vantage_crt&'" -days '&$t_certificate_expiration_in_days&' -sha256 -extfile "'&$t_ext&'" -passin pass:'&$t_passphrase,$t_Vantage_crt,"CRT generated", "Could not generate CRT")
+        runOpenSSlCommand('"'&$t_openSSLPath&'" pkcs12 -export -inkey "'&$t_Vantage_key&'" -in "'&$t_Vantage_crt&'" -out "'&$t_Vantage_pfx&'" -passout pass:'&$t_passphrase,$t_Vantage_pfx,"PFX generated", "Could not generate pfx-file")
+    endif
 EndFunc
 
 Func third_createInputGUI(ByRef $listView, ByRef $secondListView,$title,$btnText,$labelOneDescription, $labelTwoDescriotiption = "", $addNewLocation = false, $disableComboBox=false, $mode = "Add")
