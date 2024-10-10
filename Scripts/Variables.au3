@@ -45,6 +45,7 @@ $ip_tool_tip_text = getIniValue($iniFilePath,"configuration|values","ip_descript
 $csr_tool_tip_text = getIniValue($iniFilePath,"configuration|values","csr_description","",$goBackLogging)
 $private_key_tool_tip_text = getIniValue($iniFilePath,"configuration|values","priavte_key_description","",$goBackLogging)
 $ca_passphrase_tool_tip_text = getIniValue($iniFilePath,"configuration|values","ca_passhrase_description","",$goBackLogging)
+$openssl_folder_tool_tip_text = getIniValue($iniFilePath,"configuration|values","openssl_folder_description","",$goBackLogging)
 
 ;Windows parameters
 $gui_width = 600

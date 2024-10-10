@@ -29,6 +29,7 @@ Local $rootCAhasNoPassphrase = false
         GUICtrlCreateGroup("Global",5,5,$gui_width-10,$global_settings_group-15)
         GUICtrlSetFont(-1,11,700)
         GUICtrlCreateLabel("OpenSSL Folder",$gap_left,30,200)
+        GUICtrlSetTip(-1, $openssl_folder_tool_tip_text,"Info",1,1)
         $global_settings_tf_openssl_directory = GUICtrlCreateInput($global_default_openssl_directory,$gap_left,50,200,20,$ES_READONLY)
         $global_settings_btn_choose_lab_hub_directory = GUICtrlCreateButton("Directory",$gap_left+210,50, 100, 20)
 
