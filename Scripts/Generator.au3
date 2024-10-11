@@ -21,6 +21,7 @@ Local $inputGUI_inputBox_common_name
 Local $vss_locations[0]
 Local $wasFocused = False  ; Tracks whether the specific input had focus
 Local $rootCAhasNoPassphrase = false
+Local $global_start_text = "Start selected"
 
         ; Create a GUI with various controls
         Local $hGUI = GUICreate("Configuration", $gui_width+20, 500)
@@ -32,12 +33,12 @@ Local $rootCAhasNoPassphrase = false
         $global_settings_tf_openssl_directory = GUICtrlCreateInput($global_default_openssl_directory,$gap_left,50,270,20,$ES_READONLY)
         $global_settings_btn_choose_lab_hub_directory = GUICtrlCreateButton("Directory",$gap_left+280,50, 100, 20)
 
-        $global_settings_checkbox_name1 = GUICtrlCreateCheckbox("Create "&$name1,$gap_left,80)
-        $global_settings_checkbox_name2 = GUICtrlCreateCheckbox("Create "&$name2,$gap_left,105)
-        $global_settings_checkbox_name3 = GUICtrlCreateCheckbox("Create "&$name3,$gap_left,130)
-        $global_settings_checkbox_name4 = GUICtrlCreateCheckbox("Create "&$name4,$gap_left,155)
+        $global_settings_checkbox_name1 = GUICtrlCreateCheckbox("Use "&$name1&" configuration",$gap_left,80)
+        $global_settings_checkbox_name2 = GUICtrlCreateCheckbox("Use "&$name2&" configuration",$gap_left,105)
+        $global_settings_checkbox_name3 = GUICtrlCreateCheckbox("Use "&$name3&" configuration",$gap_left,130)
+        $global_settings_checkbox_name4 = GUICtrlCreateCheckbox("Use "&$name4&" configuration",$gap_left,155)
 
-        $global_start_btn = GUICtrlCreateButton("Create selected",$gui_width-110,$global_settings_group-50,100,30)
+        $global_start_btn = GUICtrlCreateButton($global_start_text,$gui_width-110,$global_settings_group-50,100,30)
         ;Global Settings - End
 
         ;First - Start
@@ -146,7 +147,7 @@ Local $rootCAhasNoPassphrase = false
         GUICtrlCreateLabel("Common Name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+260,200,25)
         GUICtrlSetTip(-1, $common_name_tool_tip_text,"Info",1,1)
         $third_list_common_name_view = GUICtrlCreateListView("Location|Common Name", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+275,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
-        $third_change_cn_list = GUICtrlCreateButton("Change",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+275,70)        
+        $third_change_cn_list = GUICtrlCreateButton("Change",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+280,70)        
 
 
         GUICtrlCreateLabel("Certificate expiration (months)",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+370,200)
@@ -184,8 +185,8 @@ Local $rootCAhasNoPassphrase = false
         GUICtrlCreateLabel("DNS",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+50,200,25)
         GUICtrlSetTip(-1, $dns_tool_tip_text,"Info",1,1)
         $fourth_list_view = GUICtrlCreateListView("DNS", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+70,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
-        $fourth_add_to_list = GUICtrlCreateButton("Add",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+85,70)
-        $fourth_delete_from_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+125,70)
+        $fourth_add_to_list = GUICtrlCreateButton("Add",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+75,70)
+        $fourth_delete_from_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+120,70)
 
 
 
@@ -380,7 +381,7 @@ Local $rootCAhasNoPassphrase = false
                                     logging("Info", "Starting "&$name1&" steps",1)
                                     first_group_do_steps()
                                 else
-                                    GUICtrlSetData($global_start_btn,"Create selected")
+                                    GUICtrlSetData($global_start_btn,$global_start_text)
                                     ContinueCase
                                 endif
                             endif
@@ -391,7 +392,7 @@ Local $rootCAhasNoPassphrase = false
                                     logging("Info", "Starting "&$name2&" steps",1)
                                     second_group_do_steps()
                                 else
-                                    GUICtrlSetData($global_start_btn,"Create selected")
+                                    GUICtrlSetData($global_start_btn,$global_start_text)
                                     ContinueCase
                                 endif
                             endif
@@ -402,7 +403,7 @@ Local $rootCAhasNoPassphrase = false
                                     logging("Info", "Starting "&$name3&" steps",1)
                                     third_group_do_steps()
                                 else
-                                    GUICtrlSetData($global_start_btn,"Create selected")
+                                    GUICtrlSetData($global_start_btn,$global_start_text)
                                     ContinueCase
                                 endif
                             endif
@@ -413,11 +414,11 @@ Local $rootCAhasNoPassphrase = false
                                     logging("Info", "Starting "&$name4&" steps",1)
                                     fourth_group_do_steps()
                                 else
-                                    GUICtrlSetData($global_start_btn,"Create selected")
+                                    GUICtrlSetData($global_start_btn,$global_start_text)
                                     ContinueCase
                                 endif
                             endif
-                            GUICtrlSetData($global_start_btn,"Create selected")
+                            GUICtrlSetData($global_start_btn,$global_start_text)
                             logging("Info", "Completed",1, false, true,64, false)
                 EndSwitch
 
