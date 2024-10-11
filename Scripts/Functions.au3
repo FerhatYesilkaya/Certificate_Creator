@@ -141,50 +141,41 @@ Func ReplaceStringInFile($sFilePath, $sSearchString, $sReplaceString)
     Return True
 EndFunc
 
-Func calculateReadableExpiration(ByRef $expiration_date_readable, ByRef $cb_expiration_date )
-
-    $expirationNumber = GUICtrlRead($cb_expiration_date)
-    $sNewDate = FormatDate(_DateAdd('M', GUICtrlRead($cb_expiration_date), _NowCalcDate()))
-
-    If Mod($expirationNumber,12) = 0 Then
-       Local  $years = 0
-
-        For $i = 0 To $expirationNumber-1 Step +12
-            $years = $years+1
-            GUICtrlSetData($expiration_date_readable, $years & " year(s) - "&$sNewDate)
-        Next
-
-    Else
-
-        Local $years = 0
-
-        For $i = 0 To $expirationNumber-12 Step +12
-            $years = $years+1
-        Next
-
-        $months = $expirationNumber - ($years*12)
-
-        GUICtrlSetData($expiration_date_readable, $years & " year(s) and "&$months&" month(s) - "&$sNewDate)
-
+Func FormatDate($sDatum, $sFormat = "dd.mm.yyyy")
+    ; Erkennen, welches Trennzeichen verwendet wird ('.' oder '/')
+    Local $sSeparator = "/"
+    If StringInStr($sDatum, ".") Then
+        $sSeparator = "."
     EndIf
-
-EndFunc
-
-Func FormatDate($sDatum)
-    ; Splitte das Datum in Jahr, Monat und Tag
-    Local $aDatum = StringSplit($sDatum, "/")
     
+    ; Splitte das Datum in seine Bestandteile
+    Local $aDatum = StringSplit($sDatum, $sSeparator)
+
     ; Überprüfe, ob das Datum korrekt formatiert ist
     If $aDatum[0] <> 3 Then
         Return "Ungültiges Datum"
     EndIf
     
-    ; Baue das Datum im Format dd.mm.yyyy zusammen
-    Local $sNeuesDatum = $aDatum[3] & "." & $aDatum[2] & "." & $aDatum[1]
+    ; Überprüfen, ob Jahr, Monat und Tag gültige Zahlen sind
+    If Not StringIsInt($aDatum[1]) Or Not StringIsInt($aDatum[2]) Or Not StringIsInt($aDatum[3]) Then
+        Return "Ungültige Zahlen im Datum"
+    EndIf
+
+    ; Konvertiere das Datum je nach gewünschtem Format
+    Local $sNeuesDatum = ""
+    Switch $sFormat
+        Case "dd.mm.yyyy"
+            $sNeuesDatum = $aDatum[3] & "." & $aDatum[2] & "." & $aDatum[1]
+        Case "yyyy/mm/dd"
+            $sNeuesDatum = $aDatum[3] & "/" & $aDatum[2] & "/" & $aDatum[1]
+        Case Else
+            Return "Ungültiges Format"
+    EndSwitch
     
     ; Rückgabe des neu formatierten Datums
     Return $sNeuesDatum
 EndFunc
+
 
 Func runOpenSSlCommand($cmd, $checkFilePath, $successMessage, $errorMessage)
 

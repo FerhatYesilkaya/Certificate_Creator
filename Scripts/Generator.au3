@@ -44,21 +44,14 @@ Local $global_start_text = "Start selected"
         ;First - Start
         $first_group = GUICtrlCreateGroup($name1,5,$global_settings_group,$gui_width-10, $first_group_height)
         GUICtrlSetFont(-1,11,700)
-        GUICtrlCreateLabel("Choose expiration of certificate (months)",$gap_left,30+$global_settings_group)
+        GUICtrlCreateLabel("Choose certificate expiration date",$gap_left,30+$global_settings_group)
         GUICtrlSetTip(-1, $expiration_date_tool_tip_text,"Info",1,1)
         $first_cb_expiration_certificate = GUICtrlCreateCombo("",$gap_left,50+$global_settings_group,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
         $first_data_string = ""
         For $i = 0 To $name1_values_max_expiration_certificate-1 Step +1
-            If($i = 0) Then
-                $first_data_string = $first_data_string & String($i+1)
-            endif
-
-            $first_data_string = $first_data_string & "|" & String($i+1)
+            $first_data_string = $first_data_string & "|" & FormatDate(_DateAdd('M', $i+1, _NowCalcDate()))
         Next
-        GUICtrlSetData($first_cb_expiration_certificate,$first_data_string,$name1_default_expiration_certificate)
-
-        $first_expiration_date_readable = GUICtrlCreateLabel("Test",210+$gap_left,$global_settings_group+52,200)
-        calculateReadableExpiration($first_expiration_date_readable,$first_cb_expiration_certificate)
+        GUICtrlSetData($first_cb_expiration_certificate,$first_data_string,FormatDate(_DateAdd('M', $name1_default_expiration_certificate, _NowCalcDate())))
 
         GUICtrlCreateLabel("Private key passphrase",$gap_left,$global_settings_group+80,200,25)
         GUICtrlSetTip(-1, $private_key_tool_tip_text,"Info",1,1)
@@ -96,15 +89,13 @@ Local $global_start_text = "Start selected"
         ;$second_add_dns_btn = GUICtrlCreateButton("Add DNS",$gap_left,$global_settings_group+$first_group_height+55)
 
 
-        GUICtrlCreateLabel("Certificate expiration (months)",$gap_left,$global_settings_group+$first_group_height+145,200)
+        GUICtrlCreateLabel("Choose certificate expiration date",$gap_left,$global_settings_group+$first_group_height+145,200)
         $second_cb_certificate_expiration = GUICtrlCreateCombo("",$gap_left,$global_settings_group+$first_group_height+165,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
         $second_data_string = ""
-        For $i = 0 To $name2_values_max_expiration_certificate Step +1
-            $second_data_string = $second_data_string & "|" & String($i)
+        For $b = 0 To $name2_values_max_expiration_certificate-1 Step +1    
+            $second_data_string = $second_data_string & "|" & FormatDate(_DateAdd('M', $b+1, _NowCalcDate()))
         Next
-        GUICtrlSetData($second_cb_certificate_expiration,$second_data_string,$name2_default_expiration_certificate)
-        $second_expiration_date_readable = GUICtrlCreateLabel("Test",$gap_left+210,$global_settings_group+$first_group_height+168,200)
-        calculateReadableExpiration($second_expiration_date_readable,$second_cb_certificate_expiration)
+        GUICtrlSetData($second_cb_certificate_expiration,$second_data_string,FormatDate(_DateAdd('M', $name2_default_expiration_certificate, _NowCalcDate())))
 
         GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+195,200,25)
         GUICtrlSetTip(-1, $ca_passphrase_tool_tip_text,"Info",1,1)
@@ -150,15 +141,13 @@ Local $global_start_text = "Start selected"
         $third_change_cn_list = GUICtrlCreateButton("Change",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+280,70)        
 
 
-        GUICtrlCreateLabel("Certificate expiration (months)",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+370,200)
+        GUICtrlCreateLabel("Choose certificate expiration date",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+370,200)
         $third_cb_certificate_expiration = GUICtrlCreateCombo($name3_default_expiration_certificate,$gap_left,$global_settings_group+$first_group_height+$secound_group_height+390,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
         $third_data_string = ""
-        For $i = 0 To $name3_values_max_expiration_certificate-1 Step +1
-            $third_data_string = $third_data_string & "|" & String($i+1)
+        For $v = 0 To $name3_values_max_expiration_certificate-1 Step +1
+            $third_data_string = $third_data_string & "|" & FormatDate(_DateAdd('M', $v+1, _NowCalcDate()))
         Next
-        GUICtrlSetData($third_cb_certificate_expiration,$third_data_string,$name3_default_expiration_certificate)
-        $third_expiration_date_readable = GUICtrlCreateLabel("Test",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+393,200)
-        calculateReadableExpiration($third_expiration_date_readable,$third_cb_certificate_expiration)
+        GUICtrlSetData($third_cb_certificate_expiration,$third_data_string,FormatDate(_DateAdd('M', $name3_default_expiration_certificate, _NowCalcDate())))
 
 
         GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+420,200,25)
@@ -193,15 +182,13 @@ Local $global_start_text = "Start selected"
         ;$second_add_dns_btn = GUICtrlCreateButton("Add DNS",$gap_left,$global_settings_group+$first_group_height+55)
 
 
-        GUICtrlCreateLabel("Certificate expiration (months)",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+160,200)
+        GUICtrlCreateLabel("Choose certificate expiration date",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+160,200)
         $fourth_cb_certificate_expiration = GUICtrlCreateCombo("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+180,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
         $fourth_data_string = ""
-        For $i = 0 To $name4_values_max_expiration_certificate-1 Step +1
-            $fourth_data_string = $fourth_data_string & "|" & String($i+1)
+        For $c = 0 To $name4_values_max_expiration_certificate-1 Step +1
+            $fourth_data_string = $fourth_data_string & "|" & FormatDate(_DateAdd('M', $c+1, _NowCalcDate()))
         Next
-        GUICtrlSetData($fourth_cb_certificate_expiration,$fourth_data_string,$name4_default_expiration_certificate)
-        $fourth_expiration_date_readable = GUICtrlCreateLabel("Test",$gap_left+210,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+183,200)
-        calculateReadableExpiration($fourth_expiration_date_readable,$fourth_cb_certificate_expiration)
+        GUICtrlSetData($fourth_cb_certificate_expiration,$fourth_data_string,FormatDate(_DateAdd('M', $name4_default_expiration_certificate, _NowCalcDate())))
 
         GUICtrlCreateLabel("CA passphrase",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+210,200,25)
         GUICtrlSetTip(-1, $ca_passphrase_tool_tip_text,"Info",1,1)
@@ -247,9 +234,6 @@ Local $global_start_text = "Start selected"
                                 GUICtrlSetData($global_settings_tf_openssl_directory,$path)
                             Endif
 
-                        Case $first_cb_expiration_certificate
-                            calculateReadableExpiration($first_expiration_date_readable,$first_cb_expiration_certificate)
-
                         Case $first_rb_show_password
                             showPassword($first_rb_show_password, $first_tf_passphrase, $first_sDefaultPassChar)
 
@@ -271,9 +255,6 @@ Local $global_start_text = "Start selected"
 
                         Case $second_rb_show_password
                             showPassword($second_rb_show_password, $second_tf_passphrase, $second_sDefaultPassChar)
-
-                        Case $second_cb_certificate_expiration
-                            calculateReadableExpiration($second_expiration_date_readable,$second_cb_certificate_expiration)
             
                         Case $second_create
                             GUICtrlSetData($second_create,"Creating...")
@@ -320,9 +301,6 @@ Local $global_start_text = "Start selected"
                         Case $third_rb_show_password
                             showPassword($third_rb_show_password, $third_tf_passphrase, $third_sDefaultPassChar)
 
-                        Case $third_cb_certificate_expiration
-                            calculateReadableExpiration($third_expiration_date_readable,$third_cb_certificate_expiration)
-
                         Case $third_change_cn_list
                             If(UBound(_GUICtrlListView_GetSelectedIndices($third_list_common_name_view,true)) <= 1) Then 
                                 MsgBox(64,"Info","Please selected an entry. You can add a common name by adding an IP-Address")
@@ -340,9 +318,6 @@ Local $global_start_text = "Start selected"
                                 logging("Warning", $name3&" - Not all information entered. Execution aborted",1, false, false,48, false)
                             endif
                             GUICtrlSetData($third_create,"Create")
-
-                        Case $fourth_cb_certificate_expiration
-                            calculateReadableExpiration($fourth_expiration_date_readable,$fourth_cb_certificate_expiration)
 
                         Case $fourth_add_to_list
                             addToSingleColumnList($fourth_list_view)
@@ -601,7 +576,7 @@ Func first_group_do_steps()
     $t_rocheCAPath = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
     $t_rocheCRTPath = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.crt"
     $t_passphrase  = GUICtrlRead($first_tf_passphrase)
-    $t_expiration_certificate = _DateDiff("D",_NowCalcDate(),_DateAdd('M', GUICtrlRead($first_cb_expiration_certificate), _NowCalcDate()))
+    $t_expiration_certificate = _DateDiff("D",_NowCalcDate(),FormatDate(GUICtrlRead($first_cb_expiration_certificate),"yyyy/mm/dd"))
     $t_common_name = GUICtrlRead($first_tf_common_name)
     $apache_path = GUICtrlRead($global_settings_tf_openssl_directory)
     
@@ -636,7 +611,7 @@ Func second_group_do_steps()
     $t_roche_ca_key = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
     $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
     $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl.cnf"
-    $t_certificate_expiration_in_days = _DateDiff("D",_NowCalcDate(),_DateAdd('M', GUICtrlRead($second_cb_certificate_expiration), _NowCalcDate()))
+    $t_certificate_expiration_in_days = _DateDiff("D",_NowCalcDate(),FormatDate(GUICtrlRead($second_cb_certificate_expiration),"yyyy/mm/dd"))
     $t_passphrase = GUICtrlRead($second_tf_passphrase)
     $t_vanilla_ext = GoBack(@ScriptDir,1)&"\data\vanilla\VConnect.ext"
     $t_ext = GoBack(@ScriptDir,1)&"\data\VConnect.ext"
@@ -695,7 +670,7 @@ Func fourth_group_do_steps()
     $t_roche_ca_key = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
     $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
     $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl.cnf"
-    $t_certificate_expiration_in_days = _DateDiff("D",_NowCalcDate(),_DateAdd('M', GUICtrlRead($fourth_cb_certificate_expiration), _NowCalcDate()))
+    $t_certificate_expiration_in_days = _DateDiff("D",_NowCalcDate(),FormatDate(GUICtrlRead($fourth_cb_certificate_expiration),"yyyy/mm/dd"))
     $t_passphrase = GUICtrlRead($fourth_tf_passphrase)
     $t_vanilla_ext = GoBack(@ScriptDir,1)&"\data\vanilla\Vantage.ext"
     $t_ext = GoBack(@ScriptDir,1)&"\data\Vantage.ext"
@@ -878,7 +853,7 @@ Func third_group_do_steps()
     $t_roche_ca_key = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
     $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
     $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl.cnf"
-    $t_certificate_expiration_in_days = _DateDiff("D",_NowCalcDate(),_DateAdd('M', GUICtrlRead($third_cb_certificate_expiration), _NowCalcDate()))
+    $t_certificate_expiration_in_days = _DateDiff("D",_NowCalcDate(),FormatDate(GUICtrlRead($third_cb_certificate_expiration),"yyyy/mm/dd"))
 
     If(GUICtrlRead($third_do_csr_only_btn) = "CSR-Only-On") Then
         $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl_csr_only.cnf"
