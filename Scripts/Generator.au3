@@ -601,7 +601,7 @@ Func first_group_do_steps()
     $t_rocheCAPath = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
     $t_rocheCRTPath = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.crt"
     $t_passphrase  = GUICtrlRead($first_tf_passphrase)
-    $t_expiration_certificate = (GUICtrlRead($first_cb_expiration_certificate)*30)
+    $t_expiration_certificate = _DateDiff("D",_NowCalcDate(),_DateAdd('M', GUICtrlRead($first_cb_expiration_certificate), _NowCalcDate()))
     $t_common_name = GUICtrlRead($first_tf_common_name)
     $apache_path = GUICtrlRead($global_settings_tf_openssl_directory)
     
@@ -636,7 +636,7 @@ Func second_group_do_steps()
     $t_roche_ca_key = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
     $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
     $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl.cnf"
-    $t_certificate_expiration_in_days = GUICtrlRead($second_cb_certificate_expiration)*30
+    $t_certificate_expiration_in_days = _DateDiff("D",_NowCalcDate(),_DateAdd('M', GUICtrlRead($second_cb_certificate_expiration), _NowCalcDate()))
     $t_passphrase = GUICtrlRead($second_tf_passphrase)
     $t_vanilla_ext = GoBack(@ScriptDir,1)&"\data\vanilla\VConnect.ext"
     $t_ext = GoBack(@ScriptDir,1)&"\data\VConnect.ext"
@@ -695,7 +695,7 @@ Func fourth_group_do_steps()
     $t_roche_ca_key = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
     $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
     $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl.cnf"
-    $t_certificate_expiration_in_days = GUICtrlRead($fourth_cb_certificate_expiration)*30
+    $t_certificate_expiration_in_days = _DateDiff("D",_NowCalcDate(),_DateAdd('M', GUICtrlRead($fourth_cb_certificate_expiration), _NowCalcDate()))
     $t_passphrase = GUICtrlRead($fourth_tf_passphrase)
     $t_vanilla_ext = GoBack(@ScriptDir,1)&"\data\vanilla\Vantage.ext"
     $t_ext = GoBack(@ScriptDir,1)&"\data\Vantage.ext"
@@ -878,7 +878,7 @@ Func third_group_do_steps()
     $t_roche_ca_key = GoBack(@ScriptDir,1)&"\temp\"&$name1&"\RocheCA.key"
     $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl.cnf"
     $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl.cnf"
-    $t_certificate_expiration_in_days = GUICtrlRead($third_cb_certificate_expiration)*30
+    $t_certificate_expiration_in_days = _DateDiff("D",_NowCalcDate(),_DateAdd('M', GUICtrlRead($third_cb_certificate_expiration), _NowCalcDate()))
 
     If(GUICtrlRead($third_do_csr_only_btn) = "CSR-Only-On") Then
         $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl_csr_only.cnf"

@@ -14,8 +14,7 @@
 #include <GuiComboBoxEx.au3>
 #include <GuiListView.au3>
 #include <GuiListBox.au3>
-
-
+#include <Date.au3>
 
 Func ChooseFolder()
     Local $sFolderSelectDialog, $sErrorMessage
@@ -145,13 +144,14 @@ EndFunc
 Func calculateReadableExpiration(ByRef $expiration_date_readable, ByRef $cb_expiration_date )
 
     $expirationNumber = GUICtrlRead($cb_expiration_date)
+    $sNewDate = FormatDate(_DateAdd('M', GUICtrlRead($cb_expiration_date), _NowCalcDate()))
 
     If Mod($expirationNumber,12) = 0 Then
        Local  $years = 0
 
         For $i = 0 To $expirationNumber-1 Step +12
             $years = $years+1
-            GUICtrlSetData($expiration_date_readable, $years & " year(s)")
+            GUICtrlSetData($expiration_date_readable, $years & " year(s) - "&$sNewDate)
         Next
 
     Else
@@ -164,10 +164,26 @@ Func calculateReadableExpiration(ByRef $expiration_date_readable, ByRef $cb_expi
 
         $months = $expirationNumber - ($years*12)
 
-        GUICtrlSetData($expiration_date_readable, $years & " year(s) and "&$months&" month(s)")
+        GUICtrlSetData($expiration_date_readable, $years & " year(s) and "&$months&" month(s) - "&$sNewDate)
 
     EndIf
 
+EndFunc
+
+Func FormatDate($sDatum)
+    ; Splitte das Datum in Jahr, Monat und Tag
+    Local $aDatum = StringSplit($sDatum, "/")
+    
+    ; Überprüfe, ob das Datum korrekt formatiert ist
+    If $aDatum[0] <> 3 Then
+        Return "Ungültiges Datum"
+    EndIf
+    
+    ; Baue das Datum im Format dd.mm.yyyy zusammen
+    Local $sNeuesDatum = $aDatum[3] & "." & $aDatum[2] & "." & $aDatum[1]
+    
+    ; Rückgabe des neu formatierten Datums
+    Return $sNeuesDatum
 EndFunc
 
 Func runOpenSSlCommand($cmd, $checkFilePath, $successMessage, $errorMessage)
@@ -184,7 +200,7 @@ Func runOpenSSlCommand($cmd, $checkFilePath, $successMessage, $errorMessage)
     Sleep(1000)
     ; Überprüfen, ob die Datei erfolgreich erstellt wurde
     If FileExists($checkFilePath) Then
-        logging("Info",$sOutput)
+        logging("Info","Command executed")
     Else
         logging("Error",$errorMessage&":"&@CRLF&$sOutput,1,false,true,16,true)
     EndIf
