@@ -112,7 +112,6 @@ Func ExecuteCMD($cmd)
 EndFunc
 
 Func ReplaceStringInFile($sFilePath, $sSearchString, $sReplaceString)
-    logging("Info","Replacing in file: "&$sFilePath)
     ; Prüfen, ob die Datei existiert
     If Not FileExists($sFilePath) Then
         logging("Error","File does not exist: "&$sFilePath,false,true,16,true)
@@ -321,7 +320,7 @@ Func addEntryToListView(Byref $inputGUI_comboBox_locations, Byref $inputGUI_inpu
     endif
 EndFunc
 
-Func AddDNSLinesToFile(ByRef $list, $filepath)
+Func AddDNSLinesToFile(ByRef $list, $filepath, $subitem = 0)
 
     Local $length = _GUICtrlListView_GetItemCount($list)
 
@@ -330,8 +329,9 @@ Func AddDNSLinesToFile(ByRef $list, $filepath)
     endif
 
     For $i = 0 To $length-1 Step +1
-        $item = _GUICtrlListView_GetItem($list,$i)
+        $item = _GUICtrlListView_GetItem($list,$i,$subitem)
         FileWriteLine($filepath,"DNS."&$i+1&" = "&$item[3])
+        logging("Info","Added line: 'DNS."&$i+1&" = "&$item[3]&"' to "&$filepath)
     Next
 EndFunc
 
@@ -422,4 +422,9 @@ Func stopProcesses($sProcessName)
     Next
     
     logging("Info","Process with the name: "&$sProcessName&" stopped",0)
+EndFunc
+
+Func writeLineToFile($filepath,$text)
+    FileWriteLine($filepath,$text)
+    logging("Info","Added line: '"&$text&"' to "&$filepath)
 EndFunc

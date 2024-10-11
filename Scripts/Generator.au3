@@ -24,14 +24,13 @@ Local $rootCAhasNoPassphrase = false
 
         ; Create a GUI with various controls
         Local $hGUI = GUICreate("Configuration", $gui_width+20, 500)
-
         ;Global Settings - Start
         GUICtrlCreateGroup("Global",5,5,$gui_width-10,$global_settings_group-15)
         GUICtrlSetFont(-1,11,700)
         GUICtrlCreateLabel("OpenSSL Folder",$gap_left,30,200)
         GUICtrlSetTip(-1, $openssl_folder_tool_tip_text,"Info",1,1)
-        $global_settings_tf_openssl_directory = GUICtrlCreateInput($global_default_openssl_directory,$gap_left,50,200,20,$ES_READONLY)
-        $global_settings_btn_choose_lab_hub_directory = GUICtrlCreateButton("Directory",$gap_left+210,50, 100, 20)
+        $global_settings_tf_openssl_directory = GUICtrlCreateInput($global_default_openssl_directory,$gap_left,50,270,20,$ES_READONLY)
+        $global_settings_btn_choose_lab_hub_directory = GUICtrlCreateButton("Directory",$gap_left+280,50, 100, 20)
 
         $global_settings_checkbox_name1 = GUICtrlCreateCheckbox("Create "&$name1,$gap_left,80)
         $global_settings_checkbox_name2 = GUICtrlCreateCheckbox("Create "&$name2,$gap_left,105)
@@ -39,7 +38,6 @@ Local $rootCAhasNoPassphrase = false
         $global_settings_checkbox_name4 = GUICtrlCreateCheckbox("Create "&$name4,$gap_left,155)
 
         $global_start_btn = GUICtrlCreateButton("Create selected",$gui_width-110,$global_settings_group-50,100,30)
-
         ;Global Settings - End
 
         ;First - Start
@@ -288,15 +286,10 @@ Local $rootCAhasNoPassphrase = false
                             GUICtrlSetData($second_create,"Create")
 
                         Case $second_do_csr_only_btn
-                            _GUICtrlListView_DeleteAllItems(GUICtrlGetHandle($second_list_view))
                             Local $array[0]
-                            $array = ArrayExpand($array, $second_add_to_list)
-                            $array = ArrayExpand($array, $second_delete_from_list)
                             $array = ArrayExpand($array, $second_cb_certificate_expiration)
-                            $array = ArrayExpand($array, $second_list_view)
                             $array = ArrayExpand($array, $second_rb_show_password)
                             $array = ArrayExpand($array, $second_tf_passphrase)
-                            $array = ArrayExpand($array, $second_tf_nplh_ip_address)
                             changeCSRButtonState($second_do_csr_only_btn,$array)
 
                         Case $third_add_to_ip_list
@@ -317,13 +310,7 @@ Local $rootCAhasNoPassphrase = false
                             
 
                         Case $third_do_csr_only_btn
-                            _GUICtrlListView_DeleteAllItems(GUICtrlGetHandle($third_list_common_name_view))
-                            _GUICtrlListView_DeleteAllItems(GUICtrlGetHandle($third_list_ip_view))
-                            _GUICtrlListView_DeleteAllItems(GUICtrlGetHandle($third_dns_list_view))
                             Local $array[0]
-                            $array = ArrayExpand($array, $third_add_to_dns_list)
-                            $array = ArrayExpand($array, $third_delete_from_dns_list)
-                            $array = ArrayExpand($array, $third_dns_list_view)
                             $array = ArrayExpand($array, $third_cb_certificate_expiration)
                             $array = ArrayExpand($array, $third_tf_passphrase)
                             $array = ArrayExpand($array, $third_rb_show_password)
@@ -366,15 +353,10 @@ Local $rootCAhasNoPassphrase = false
                             showPassword($fourth_rb_show_password, $fourth_tf_passphrase, $fourth_sDefaultPassChar)
 
                         Case $fourth_do_csr_only_btn
-                            _GUICtrlListView_DeleteAllItems(GUICtrlGetHandle($fourth_list_view))
                             Local $array[0]
-                            $array = ArrayExpand($array, $fourth_add_to_list)
-                            $array = ArrayExpand($array, $fourth_delete_from_list)
-                            $array = ArrayExpand($array, $fourth_list_view)
                             $array = ArrayExpand($array, $fourth_cb_certificate_expiration)
                             $array = ArrayExpand($array, $fourth_tf_passphrase)
                             $array = ArrayExpand($array, $fourth_rb_show_password)
-                            $array = ArrayExpand($array, $fourth_tf_npla_ip_address)
                             changeCSRButtonState($fourth_do_csr_only_btn,$array)
 
                         Case $fourth_create
@@ -658,9 +640,20 @@ Func second_group_do_steps()
     $t_vanilla_ext = GoBack(@ScriptDir,1)&"\data\vanilla\VConnect.ext"
     $t_ext = GoBack(@ScriptDir,1)&"\data\VConnect.ext"
 
+    If(GUICtrlRead($second_do_csr_only_btn) = "CSR-Only-On") Then
+        $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl_csr_only.cnf"
+        $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl_csr_only.cnf"
+    endif
+
+
     ExecuteCMD('set OPENSSL_CONF='&GoBack($apache_path,1)&'\conf\openssl.cnf')
 
     FileCopy($t_vanilla_openssl_cnf,GoBack(@ScriptDir,1)&"\data",1)
+
+    If(GUICtrlRead($second_do_csr_only_btn) = "CSR-Only-On") Then
+        writeLineToFile($t_openssl_cnf,"IP.1 = "&$t_nplh_ip_address)
+        AddDNSLinesToFile($second_list_view,$t_openssl_cnf)
+    endif
 
     ReplaceStringInFile($t_openssl_cnf,"CN = default","CN = "&$t_common_name)
 
@@ -674,7 +667,7 @@ Func second_group_do_steps()
 
     FileCopy($t_vanilla_ext,GoBack(@ScriptDir,1)&"\data",1)
 
-    FileWriteLine($t_ext,"IP.1 = "&$t_nplh_ip_address)
+    writeLineToFile($t_ext,"IP.1 = "&$t_nplh_ip_address)
 
     AddDNSLinesToFile($second_list_view,$t_ext)
 
@@ -691,7 +684,7 @@ EndFunc
 Func fourth_group_do_steps()
     $apache_path = GUICtrlRead($global_settings_tf_openssl_directory)
     $t_common_name = GUICtrlRead($fourth_tf_common_name)
-    $t_nplh_ip_address = GUICtrlRead($fourth_tf_npla_ip_address)
+    $t_npla_ip_address = GUICtrlRead($fourth_tf_npla_ip_address)
     $t_openSSLPath = GUICtrlRead($global_settings_tf_openssl_directory)&'\openssl.exe'
     $t_Vantage_key = GoBack(@ScriptDir,1)&"\temp\"&$name4&"\Vantage.key"
     $t_Vantage_csr = GoBack(@ScriptDir,1)&"\temp\"&$name4&"\Vantage.csr"
@@ -706,9 +699,19 @@ Func fourth_group_do_steps()
     $t_vanilla_ext = GoBack(@ScriptDir,1)&"\data\vanilla\Vantage.ext"
     $t_ext = GoBack(@ScriptDir,1)&"\data\Vantage.ext"
 
+    If(GUICtrlRead($fourth_do_csr_only_btn) = "CSR-Only-On") Then
+        $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl_csr_only.cnf"
+        $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl_csr_only.cnf"
+    endif
+
     ExecuteCMD('set OPENSSL_CONF='&GoBack($apache_path,1)&'\conf\openssl.cnf')
 
     FileCopy($t_vanilla_openssl_cnf,GoBack(@ScriptDir,1)&"\data",1)
+
+    If(GUICtrlRead($fourth_do_csr_only_btn) = "CSR-Only-On") Then
+        writeLineToFile($t_openssl_cnf,"IP.1 = "&$t_npla_ip_address)
+        AddDNSLinesToFile($fourth_list_view,$t_openssl_cnf)
+    endif
 
     ReplaceStringInFile($t_openssl_cnf,"CN = default","CN = "&$t_common_name)
 
@@ -722,7 +725,7 @@ Func fourth_group_do_steps()
 
     FileCopy($t_vanilla_ext,GoBack(@ScriptDir,1)&"\data",1)
 
-    FileWriteLine($t_ext,"IP.1 = "&$t_nplh_ip_address)
+    writeLineToFile($t_ext,"IP.1 = "&$t_npla_ip_address)
 
     AddDNSLinesToFile($fourth_list_view,$t_ext)
 
@@ -876,22 +879,49 @@ Func third_group_do_steps()
     $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl.cnf"
     $t_certificate_expiration_in_days = GUICtrlRead($third_cb_certificate_expiration)*30
 
-    For $i = 0 To _GUICtrlListView_GetItemCount($third_list_common_name_view)-1 Step +1
+    If(GUICtrlRead($third_do_csr_only_btn) = "CSR-Only-On") Then
+        $t_vanilla_openssl_cnf = GoBack(@ScriptDir,1)&"\data\vanilla\openssl_csr_only.cnf"
+        $t_openssl_cnf = GoBack(@ScriptDir,1)&"\data\openssl_csr_only.cnf"
+    endif
+
+    For $i = 0 To _GUICtrlListView_GetItemCount($third_list_ip_view)-1 Step +1
         $current_ip_location = _GUICtrlListView_GetItemText($third_list_ip_view, $i, 0)
         $current_ip = _GUICtrlListView_GetItemText($third_list_ip_view, $i, 1)
         $t_vss_description = $current_ip_location
-        $t_common_name =  $current_ip
+        $t_common_name =  _GUICtrlListView_GetItemText($third_list_common_name_view, $i, 1)
+
+        For $p = 0 To _GUICtrlListView_GetItemCount($third_list_common_name_view)-1 Step +1
+            $current_common_name_location = _GUICtrlListView_GetItemText($third_list_common_name_view, $p, 0)
+            $current_common_name = _GUICtrlListView_GetItemText($third_list_common_name_view, $p, 1)
+
+            If($current_common_name_location = $current_ip_location) Then
+                logging("Info","Common name set to: "&$current_common_name&" for Location: "&$current_ip_location)
+                $t_common_name = $current_common_name
+                ExitLoop
+            endif
+        Next
 
         $t_vss_key = GoBack(@ScriptDir,1)&"\temp\"&$name3&"\VSS_"&$t_vss_description&".key"
         $t_vss_csr = GoBack(@ScriptDir,1)&"\temp\"&$name3&"\VSS_"&$t_vss_description&".csr"
         $t_vss_crt = GoBack(@ScriptDir,1)&"\temp\"&$name3&"\VSS_"&$t_vss_description&".crt"
     
         ExecuteCMD('set OPENSSL_CONF='&GoBack($apache_path,1)&'\conf\openssl.cnf')
-    
+
         logging("Info", "Creating VSS.key")
         runOpenSSlCommand('"'&$t_openSSLPath&'" genrsa -out "'&$t_vss_key&'" 2048',$t_vss_key,"Private key generated", "Private key could not be generated")
     
         FileCopy($t_vanilla_openssl_cnf,GoBack(@ScriptDir,1)&"\data",1)
+
+        If(GUICtrlRead($third_do_csr_only_btn) = "CSR-Only-On") Then
+            writeLineToFile($t_openssl_cnf,"IP.1 = "&$current_ip)
+            For $z = 0 To _GUICtrlListView_GetItemCount($third_dns_list_view)-1 Step +1
+                $current_dns_location  = _GUICtrlListView_GetItemText($third_dns_list_view, $z, 0)
+                $current_dns = _GUICtrlListView_GetItemText($third_dns_list_view, $z, 1)
+                If($current_dns_location = $current_ip_location) Then
+                    writeLineToFile($t_openssl_cnf,"DNS."&$z+1&" = "&$current_dns)
+                endif
+            Next
+        endif
     
         ReplaceStringInFile($t_openssl_cnf,"CN = default","CN = "&$t_common_name)
         runOpenSSlCommand('"'&$t_openSSLPath&'" req -new -key "'&$t_vss_key&'" -out "'&$t_vss_csr&'" -config "'&$t_openssl_cnf&'"',$t_vss_csr,"Key generated", "Could not generate key-file")
@@ -903,7 +933,7 @@ Func third_group_do_steps()
         if($t_passphrase = "") Then
             FileCopy($t_vanilla_vss_ext,GoBack(@ScriptDir,1)&"\data",1)
         
-            FileWriteLine($t_vss_ext,"IP.1 = "&$t_common_name)
+            writeLineToFile($t_vss_ext,"IP.1 = "&$current_ip)
     
             Local $t_vss_dns
             For $j = 0 To _GUICtrlListView_GetItemCount($third_dns_list_view)-1 Step +1
@@ -911,7 +941,7 @@ Func third_group_do_steps()
                 $current_dns = _GUICtrlListView_GetItemText($third_dns_list_view, $j, 1)
                 $t_vss_dns = $current_dns
                 If($current_dns_location = $current_ip_location) Then
-                    FileWriteLine($t_vss_ext,"DNS."&$j+1&" = "&$t_vss_dns)
+                    writeLineToFile($t_vss_ext,"DNS."&$j+1&" = "&$t_vss_dns)
                 endif
             Next
     
@@ -921,7 +951,7 @@ Func third_group_do_steps()
         Else
             FileCopy($t_vanilla_vss_ext,GoBack(@ScriptDir,1)&"\data",1)
         
-            FileWriteLine($t_vss_ext,"IP.1 = "&$t_common_name)
+            writeLineToFile($t_vss_ext,"IP.1 = "&$current_ip)
     
             Local $t_vss_dns
             For $k = 0 To _GUICtrlListView_GetItemCount($third_dns_list_view)-1 Step +1
@@ -929,7 +959,7 @@ Func third_group_do_steps()
                 $current_dns = _GUICtrlListView_GetItemText($third_dns_list_view, $k, 1)
                 $t_vss_dns = $current_dns
                 If($current_dns_location = $current_ip_location) Then
-                    FileWriteLine($t_vss_ext,"DNS."&$k+1&" = "&$t_vss_dns)
+                    writeLineToFile($t_vss_ext,"DNS."&$k+1&" = "&$t_vss_dns)
                 endif            
             Next
     
