@@ -359,8 +359,8 @@ Local $global_start_text = "Start selected"
                                     GUICtrlSetData($global_start_btn,$global_start_text)
                                     ContinueCase
                                 endif
+                                Sleep(1000)
                             endif
-                            Sleep(1000)
 
                             If(GUICtrlRead($global_settings_checkbox_name2) = 1) Then
                                 If(secondGroupCheckIfAllDataEntered()) Then 
@@ -370,8 +370,8 @@ Local $global_start_text = "Start selected"
                                     GUICtrlSetData($global_start_btn,$global_start_text)
                                     ContinueCase
                                 endif
+                                Sleep(1000)
                             endif
-                            Sleep(1000)
 
                             If(GUICtrlRead($global_settings_checkbox_name3) = 1) Then
                                 If(thirdGroupCheckIfAllDataEntered()) Then 
@@ -381,10 +381,10 @@ Local $global_start_text = "Start selected"
                                     GUICtrlSetData($global_start_btn,$global_start_text)
                                     ContinueCase
                                 endif
+                                Sleep(1000)
                             endif
-                            Sleep(1000)
 
-                            If(GUICtrlRead($global_settings_checkbox_name4) = 1 AND fourthGroupCheckIfAllDataEntered() = true) Then
+                            If(GUICtrlRead($global_settings_checkbox_name4) = 1) Then
                                 If(fourthGroupCheckIfAllDataEntered()) Then 
                                     logging("Info", "Starting "&$name4&" steps",1)
                                     fourth_group_do_steps()
