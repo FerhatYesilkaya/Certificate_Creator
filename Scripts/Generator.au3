@@ -90,6 +90,7 @@ Local $global_start_text = "Start selected"
 
 
         GUICtrlCreateLabel("Choose certificate expiration date",$gap_left,$global_settings_group+$first_group_height+145,200)
+        GUICtrlSetTip(-1, $expiration_date_tool_tip_text,"Info",1,1)
         $second_cb_certificate_expiration = GUICtrlCreateCombo("",$gap_left,$global_settings_group+$first_group_height+165,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
         $second_data_string = ""
         For $b = 0 To $name2_values_max_expiration_certificate-1 Step +1    
@@ -142,6 +143,7 @@ Local $global_start_text = "Start selected"
 
 
         GUICtrlCreateLabel("Choose certificate expiration date",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+370,200)
+        GUICtrlSetTip(-1, $expiration_date_tool_tip_text,"Info",1,1)
         $third_cb_certificate_expiration = GUICtrlCreateCombo($name3_default_expiration_certificate,$gap_left,$global_settings_group+$first_group_height+$secound_group_height+390,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
         $third_data_string = ""
         For $v = 0 To $name3_values_max_expiration_certificate-1 Step +1
@@ -183,6 +185,7 @@ Local $global_start_text = "Start selected"
 
 
         GUICtrlCreateLabel("Choose certificate expiration date",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+160,200)
+        GUICtrlSetTip(-1, $expiration_date_tool_tip_text,"Info",1,1)
         $fourth_cb_certificate_expiration = GUICtrlCreateCombo("",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+180,200,25,$CBS_DROPDOWNLIST + $WS_VSCROLL) 
         $fourth_data_string = ""
         For $c = 0 To $name4_values_max_expiration_certificate-1 Step +1
