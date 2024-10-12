@@ -13,25 +13,25 @@ $name3 = getIniValue($iniFilePath,"configuration|values","name3","",$goBackLoggi
 $name4 = getIniValue($iniFilePath,"configuration|values","name4","",$goBackLogging)
 
 
-$name1_values_max_expiration_certificate = getIniValue($iniFilePath,"name1|values","maximum_expiration_certificate","",$goBackLogging)
+$name1_values_max_expiration_certificate = getIniValue($iniFilePath,"name1|values","maximum_expiration_certificate_in_months","",$goBackLogging)
 $name1_default_expiration_certificate = getIniValue($iniFilePath,"name1|defaults","expiration_certificate","",$goBackLogging)
 $name1_default_common_name = getIniValue($iniFilePath,"name1|defaults","common_name","",$goBackLogging)
 
 
-$name2_values_max_expiration_certificate = getIniValue($iniFilePath,"name2|values","maximum_expiration_certificate","",$goBackLogging)
+$name2_values_max_expiration_certificate = getIniValue($iniFilePath,"name2|values","maximum_expiration_certificate_in_months","",$goBackLogging)
 $name2_default_expiration_certificate = getIniValue($iniFilePath,"name2|defaults","expiration_certificate","",$goBackLogging)
 $name2_default_ip_address = getIniValue($iniFilePath,"name2|defaults","nplh_ip_address","",$goBackLogging)
 $name2_values_minimum_dns_entries = getIniValue($iniFilePath,"name2|values","minimum_dns_entries","",$goBackLogging)
 
 $name3_default_expiration_certificate = getIniValue($iniFilePath,"name3|defaults","expiration_certificate","",$goBackLogging)
-$name3_values_max_expiration_certificate = getIniValue($iniFilePath,"name3|values","maximum_expiration_certificate","",$goBackLogging)
+$name3_values_max_expiration_certificate = getIniValue($iniFilePath,"name3|values","maximum_expiration_certificate_in_months","",$goBackLogging)
 $name3_values_minimum_ip_entries = getIniValue($iniFilePath,"name3|values","minimum_ip_entries","",$goBackLogging)
 $name3_values_minimum_dns_entries = getIniValue($iniFilePath,"name3|values","minimum_dns_entries","",$goBackLogging)
 
 $name4_default_expiration_certificate = getIniValue($iniFilePath,"name4|defaults","expiration_certificate","",$goBackLogging)
 
 
-$name4_values_max_expiration_certificate = getIniValue($iniFilePath,"name4|values","maximum_expiration_certificate","",$goBackLogging)
+$name4_values_max_expiration_certificate = getIniValue($iniFilePath,"name4|values","maximum_expiration_certificate_in_months","",$goBackLogging)
 $name4_default_common_name = getIniValue($iniFilePath,"name4|defaults","common_name","",$goBackLogging)
 $name4_values_minimum_dns_entries = getIniValue($iniFilePath,"name4|values","minimum_dns_entries","",$goBackLogging)
 $name4_default_ip_address = getIniValue($iniFilePath,"name4|defaults","nplh_ip_address","",$goBackLogging)
