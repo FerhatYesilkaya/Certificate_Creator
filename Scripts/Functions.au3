@@ -26,9 +26,9 @@ Func ChooseFolder()
     If @error Then
         Switch @error
             Case 1
-                $sErrorMessage = "No File selected"
+                $sErrorMessage = "No Folder selected"
             Case 2
-                $sErrorMessage = "Could not open File Chooser"
+                $sErrorMessage = "Could not open Folder Chooser"
             Case Else
                 $sErrorMessage = "An unknown error occured. Errorcode: " & @error
         EndSwitch
@@ -38,15 +38,6 @@ Func ChooseFolder()
     Else
         Return $sFolderSelectDialog
     EndIf
-EndFunc
-
-Func addInputBoxDynamically($array, $current_dns_count,$left,$top,$width,$height)
-    if($current_dns_count < UBound($array)) Then
-        $array[$current_dns_count] = GUICtrlCreateInput("Type here" & $current_dns_count,$left,$top,$width,$height)
-        Return $current_dns_count+1
-    else
-        Return $current_dns_count
-    endif
 EndFunc
 
 ; Funktion zum Schreiben eines Werts in eine .ini-Datei
@@ -84,15 +75,8 @@ Func logging($level, $message, $goBack = 1, $showProgess=false, $showMessageBox=
 
 	If($showMessageBox) Then
 			MsgBox($flagForMessageBox,$level,$message)
-	Endif
+	Endif 
     
-    #cs
-	if($showProgess) Then
-			GUICtrlSetData($progrssbarLabel,$message)
-	Endif
-    #ce
-    
-
 	If ($doExit) Then
 			Exit
 	EndIf
