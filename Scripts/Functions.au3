@@ -15,6 +15,42 @@
 #include <GuiListView.au3>
 #include <GuiListBox.au3>
 #include <Date.au3>
+#include <GuiTreeView.au3>
+
+
+Func ListFiles_ToTreeView(Byref $treeHandle, $sSourceFolder, $hItem)
+
+    Local $sFile
+
+    ; Force a trailing \
+    If StringRight($sSourceFolder, 1) <> "\" Then $sSourceFolder &= "\"
+
+    ; Start the search
+    Local $hSearch = FileFindFirstFile($sSourceFolder & "*.*")
+    ; If no files found then return
+    If $hSearch = -1 Then Return ; This is where we break the recursive loop <<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    ; Now run through the contents of the folder
+    While 1
+        ; Get next match
+        $sFile = FileFindNextFile($hSearch)
+        ; If no more files then close search handle and return
+        If @error Then ExitLoop ; This is where we break the recursive loop <<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        ; Check if a folder
+        If @extended Then
+            ; If so then call the function recursively
+            ListFiles_ToTreeView($treeHandle,$sSourceFolder & $sFile, _GUICtrlTreeView_AddChild($treeHandle, $hItem, $sFile))
+        Else
+            ; If a file than write path and name
+            _GUICtrlTreeView_AddChild($treeHandle, $hItem, $sFile)
+        EndIf
+    WEnd
+
+    ; Close search handle
+    FileClose($hSearch)
+
+EndFunc   ;==>ListFiles_ToTreeView
 
 Func ChooseFolder()
     Local $sFolderSelectDialog, $sErrorMessage
