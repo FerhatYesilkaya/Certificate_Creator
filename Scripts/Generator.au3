@@ -773,7 +773,7 @@ Func third_createInputGUI(ByRef $listView, ByRef $secondListView,$title,$btnText
                     Case $GUI_EVENT_CLOSE
                         ExitLoop
                     Case $inputGUI_comboBox_locations
-                        if(GUICtrlRead($inputGUI_comboBox_locations) = "Add for new location") Then
+                        if(GUICtrlRead($inputGUI_comboBox_locations) = "Add new location") Then
                             GUICtrlSetState($inputGUI_inputBox_two,$GUI_SHOW)
                             GUICtrlSetState($label_two,$GUI_SHOW)
                         Else
@@ -829,7 +829,7 @@ Func third_createInputGUI_populate_combobox(Byref $listview,  ByRef $secondListV
     Next
 
     If ($addNewLocationText) Then
-        $comboBoxString &= "|Add for new location"
+        $comboBoxString &= "|Add new location"
     endif
 
     GUICtrlSetData($inputGUI_comboBox_locations,$comboBoxString)

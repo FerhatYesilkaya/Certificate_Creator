@@ -266,7 +266,7 @@ Func addEntryToListView(Byref $inputGUI_comboBox_locations, Byref $inputGUI_inpu
         return 0
     endif
     
-    If(GUICtrlRead($inputGUI_comboBox_locations) = "Add for new location") Then
+    If(GUICtrlRead($inputGUI_comboBox_locations) = "Add new location") Then
         If(GUICtrlRead($inputGUI_inputBox_one) = "" Or GUICtrlRead($inputGUI_inputBox_two) = "") Then
             MsgBox(48,"Warning","Please enter all information")
             return 0
