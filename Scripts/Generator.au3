@@ -455,7 +455,7 @@ Func secondGroupCheckIfAllDataEntered()
         endif
     endif
 
-    If(_GUICtrlListView_GetItemCount($second_list_view) < $name2_values_minimum_dns_entries AND GUICtrlRead($second_do_csr_only_btn) = "CSR-Only-Off") Then
+    If(_GUICtrlListView_GetItemCount($second_list_view) < $name2_values_minimum_dns_entries) Then
         MsgBox(48,$name2,"Please enter min: "&$name2_values_minimum_dns_entries &" DNS entries")
         return false
     endif
@@ -465,7 +465,7 @@ Func secondGroupCheckIfAllDataEntered()
         return false
     endif
 
-    If(GUICtrlRead($second_tf_nplh_ip_address) = "" AND GUICtrlRead($second_do_csr_only_btn) = "CSR-Only-Off") Then
+    If(GUICtrlRead($second_tf_nplh_ip_address) = "") Then
         MsgBox(48,$name2,"Please enter a nPLH/VConnect IP-Address")
         return false
     endif
@@ -509,7 +509,7 @@ Func thirdGroupCheckIfAllDataEntered()
         return false
     endif
 
-    If(_GUICtrlListView_GetItemCount($third_dns_list_view) < $name3_values_minimum_dns_entries AND GUICtrlRead($third_do_csr_only_btn) = "CSR-Only-Off") Then
+    If(_GUICtrlListView_GetItemCount($third_dns_list_view) < $name3_values_minimum_dns_entries) Then
         MsgBox(48,$name3,"Please enter min: "&$name3_values_minimum_dns_entries &" DNS entries")
         return false
     endif
@@ -532,7 +532,7 @@ Func fourthGroupCheckIfAllDataEntered()
         endif
     endif
 
-    If(_GUICtrlListView_GetItemCount($fourth_list_view) < $name4_values_minimum_dns_entries AND GUICtrlRead($fourth_do_csr_only_btn) = "CSR-Only-Off") Then
+    If(_GUICtrlListView_GetItemCount($fourth_list_view) < $name4_values_minimum_dns_entries) Then
         MsgBox(48,$name4,"Please enter min: "&$name4_values_minimum_dns_entries &" DNS entries")
         return false
     endif
@@ -542,7 +542,7 @@ Func fourthGroupCheckIfAllDataEntered()
         return false
     endif
 
-    If(GUICtrlRead($fourth_tf_npla_ip_address) = "" AND GUICtrlRead($fourth_do_csr_only_btn) = "CSR-Only-Off") Then
+    If(GUICtrlRead($fourth_tf_npla_ip_address) = "") Then
         MsgBox(48,$name4,"Please enter a nPLA/Vantage IP-Address")
         return false
     endif
