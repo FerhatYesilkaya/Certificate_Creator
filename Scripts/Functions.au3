@@ -18,39 +18,46 @@
 #include <GuiTreeView.au3>
 
 
-Func ListFiles_ToTreeView(Byref $treeHandle, $sSourceFolder, $hItem)
-
+; Funktion zum Füllen des TreeViews
+Func ListFiles_ToTreeView(ByRef $treeHandle, $sSourceFolder, $hItem)
     Local $sFile
 
-    ; Force a trailing \
+    ; Füge einen Schrägstrich hinzu, falls nötig
     If StringRight($sSourceFolder, 1) <> "\" Then $sSourceFolder &= "\"
 
-    ; Start the search
+    ; Starte die Suche
     Local $hSearch = FileFindFirstFile($sSourceFolder & "*.*")
-    ; If no files found then return
-    If $hSearch = -1 Then Return ; This is where we break the recursive loop <<<<<<<<<<<<<<<<<<<<<<<<<<
+    If $hSearch = -1 Then Return
 
-    ; Now run through the contents of the folder
+    ; Durchlaufe die Inhalte des Ordners
     While 1
-        ; Get next match
         $sFile = FileFindNextFile($hSearch)
-        ; If no more files then close search handle and return
-        If @error Then ExitLoop ; This is where we break the recursive loop <<<<<<<<<<<<<<<<<<<<<<<<<<
+        If @error Then ExitLoop
 
-        ; Check if a folder
         If @extended Then
-            ; If so then call the function recursively
-            ListFiles_ToTreeView($treeHandle,$sSourceFolder & $sFile, _GUICtrlTreeView_AddChild($treeHandle, $hItem, $sFile))
+            Local $hNewItem = _GUICtrlTreeView_AddChild($treeHandle, $hItem, $sFile)
+            ListFiles_ToTreeView($treeHandle, $sSourceFolder & $sFile, $hNewItem)
         Else
-            ; If a file than write path and name
-            _GUICtrlTreeView_AddChild($treeHandle, $hItem, $sFile)
+            Local $sFullPath = $sSourceFolder & $sFile
+            Local $hNewItem = _GUICtrlTreeView_AddChild($treeHandle, $hItem, $sFile)
+            _GUICtrlTreeView_SetItemParam($treeHandle, $hNewItem, $sFullPath) ; Speichere den Pfad
         EndIf
     WEnd
-
-    ; Close search handle
     FileClose($hSearch)
+EndFunc
 
-EndFunc   ;==>ListFiles_ToTreeView
+Func GetFullPathFromTreeViewNode(Byref $hTreeView, $hItem)
+    Local $sPath = _GUICtrlTreeView_GetText($hTreeView, $hItem)
+    Local $hParent = _GUICtrlTreeView_GetParentHandle($hTreeView, $hItem)
+    
+    ; Durchläuft die Elternknoten, um den vollständigen Pfad zu erstellen
+    While $hParent <> 0
+        $sPath = _GUICtrlTreeView_GetText($hTreeView, $hParent) & "\" & $sPath
+        $hParent = _GUICtrlTreeView_GetParentHandle($hTreeView, $hParent)
+    WEnd
+
+    Return $sPath
+EndFunc
 
 Func ChooseFolder()
     Local $sFolderSelectDialog, $sErrorMessage

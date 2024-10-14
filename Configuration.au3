@@ -14,6 +14,11 @@ ShellExecute(@ScriptDir&"\Scripts\Generator.au3")
 
 
         Func checkFilePath()
+                If(FileExists(@ScriptDir&"\temp\")) Then
+                        MsgBox(48,"Warning","All data in the 'temp'-Folder will be deleted. Please safe data before clicking on 'OK'")
+                        DirRemove(@ScriptDir&"\temp\",1)
+                endif
+
                 $name1Path = @ScriptDir&"\temp\"&$name1
                 $name2Path = @ScriptDir&"\temp\"&$name2
                 $name3Path = @ScriptDir&"\temp\"&$name3
@@ -39,4 +44,6 @@ ShellExecute(@ScriptDir&"\Scripts\Generator.au3")
                         logging("Info",$name4Path & " does not exist. Creating path",0)
                         DirCreate($name4Path)
                 endif
+
+                ;Sleep(2000)
         EndFunc

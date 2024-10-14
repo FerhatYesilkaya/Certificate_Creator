@@ -48,7 +48,7 @@ $ca_passphrase_tool_tip_text = getIniValue($iniFilePath,"configuration|values","
 $openssl_folder_tool_tip_text = getIniValue($iniFilePath,"configuration|values","openssl_folder_description","",$goBackLogging)
 
 ;Windows parameters
-$gui_width = 600
+$gui_width = 900
 $gap_left = 15
 $global_settings_group = 200
 $first_group_height = 185
