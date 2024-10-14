@@ -503,7 +503,6 @@ Func CheckDirectoryChanges($sDirPath)
     ; Wenn g_aFileList leer ist, initialisiere es
     If UBound($g_aFileList) = 0 Then
         $g_aFileList = $aCurrentFiles
-        Return false
     EndIf
 
     ; Überprüfen, ob sich die Anzahl der Dateien geändert hat
