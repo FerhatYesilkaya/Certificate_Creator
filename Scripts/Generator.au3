@@ -22,7 +22,6 @@ Local $vss_locations[0]
 Local $wasFocused = False  ; Tracks whether the specific input had focus
 Local $rootCAhasNoPassphrase = false
 Local $global_start_text = "Start selected"
-Global $g_aFileList[] ; Globales Array für die Dateiliste
 
 
         ; Create a GUI with various controls
