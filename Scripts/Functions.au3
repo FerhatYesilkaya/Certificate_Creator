@@ -15,49 +15,6 @@
 #include <GuiListView.au3>
 #include <GuiListBox.au3>
 #include <Date.au3>
-#include <GuiTreeView.au3>
-
-
-; Funktion zum Füllen des TreeViews
-Func ListFiles_ToTreeView(ByRef $treeHandle, $sSourceFolder, $hItem)
-    Local $sFile
-
-    ; Füge einen Schrägstrich hinzu, falls nötig
-    If StringRight($sSourceFolder, 1) <> "\" Then $sSourceFolder &= "\"
-
-    ; Starte die Suche
-    Local $hSearch = FileFindFirstFile($sSourceFolder & "*.*")
-    If $hSearch = -1 Then Return
-
-    ; Durchlaufe die Inhalte des Ordners
-    While 1
-        $sFile = FileFindNextFile($hSearch)
-        If @error Then ExitLoop
-
-        If @extended Then
-            Local $hNewItem = _GUICtrlTreeView_AddChild($treeHandle, $hItem, $sFile)
-            ListFiles_ToTreeView($treeHandle, $sSourceFolder & $sFile, $hNewItem)
-        Else
-            Local $sFullPath = $sSourceFolder & $sFile
-            Local $hNewItem = _GUICtrlTreeView_AddChild($treeHandle, $hItem, $sFile)
-            _GUICtrlTreeView_SetItemParam($treeHandle, $hNewItem, $sFullPath) ; Speichere den Pfad
-        EndIf
-    WEnd
-    FileClose($hSearch)
-EndFunc
-
-Func GetFullPathFromTreeViewNode(Byref $hTreeView, $hItem)
-    Local $sPath = _GUICtrlTreeView_GetText($hTreeView, $hItem)
-    Local $hParent = _GUICtrlTreeView_GetParentHandle($hTreeView, $hItem)
-    
-    ; Durchläuft die Elternknoten, um den vollständigen Pfad zu erstellen
-    While $hParent <> 0
-        $sPath = _GUICtrlTreeView_GetText($hTreeView, $hParent) & "\" & $sPath
-        $hParent = _GUICtrlTreeView_GetParentHandle($hTreeView, $hParent)
-    WEnd
-
-    Return $sPath
-EndFunc
 
 Func ChooseFolder()
     Local $sFolderSelectDialog, $sErrorMessage

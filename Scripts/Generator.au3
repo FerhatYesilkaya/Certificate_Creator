@@ -22,19 +22,15 @@ Local $vss_locations[0]
 Local $wasFocused = False  ; Tracks whether the specific input had focus
 Local $rootCAhasNoPassphrase = false
 Local $global_start_text = "Start selected"
-Local $treePath = GoBack(@ScriptDir,1)&"\temp"
 Global $g_aFileList[] ; Globales Array für die Dateiliste
 
 
         ; Create a GUI with various controls
         Local $hGUI = GUICreate("Configuration", $gui_width+20, 500)
-        $hTreeView = _GUICtrlTreeView_Create($hGUI, 620, 15, 275, 370)
-        _GUICtrlTreeView_BeginUpdate($hTreeView)
-        ListFiles_ToTreeView($hTreeView,$treePath, 0)
-        _GUICtrlTreeView_EndUpdate($hTreeView)
-        GUIRegisterMsg($WM_NOTIFY, "WM_NOTIFY")
-        AdlibRegister("UpdateTree",1500)
-        
+        $open_name1 = GUICtrlCreateButton("Open Root CA directory",$gui_width-270,25,250,50)
+        $open_name2 = GUICtrlCreateButton("Open nPLH/VConnect directory",$gui_width-270,100,250,50)
+        $open_name3 = GUICtrlCreateButton("Open VSS directory",$gui_width-270,175,250,50)
+        $open_name4 = GUICtrlCreateButton("Open nPLA/Vantage directory",$gui_width-270,250,250,50)
         ;Global Settings - Start
         GUICtrlCreateGroup("Global",5,5,$gui_width-300,$global_settings_group-15)
         GUICtrlSetFont(-1,11,700)
@@ -115,6 +111,7 @@ Global $g_aFileList[] ; Globales Array für die Dateiliste
         $second_sDefaultPassChar = GUICtrlSendMsg($second_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
         GUICtrlCreateLabel("nPLH/VConnect-Server IP",$gap_left,$global_settings_group+$first_group_height+245)
+        GUICtrlSetTip(-1, $ip_tool_tip_text,"Info",1,1)
         $second_tf_nplh_ip_address = GUICtrlCreateInput($name2_default_ip_address,$gap_left,$global_settings_group+$first_group_height+265,200,20)
 
         GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+$first_group_height+295,200,25)
@@ -136,6 +133,7 @@ Global $g_aFileList[] ; Globales Array für die Dateiliste
 
 
         GUICtrlCreateLabel("VSS-IP-Address",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+40,200,25)
+        GUICtrlSetTip(-1, $ip_tool_tip_text,"Info",1,1)
         $third_list_ip_view = GUICtrlCreateListView("Location|IP", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+55,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
         $third_add_to_ip_list = GUICtrlCreateButton("Add",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+65,70)
         $third_delete_from_ip_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+105,70)
@@ -210,6 +208,7 @@ Global $g_aFileList[] ; Globales Array für die Dateiliste
         $fourth_sDefaultPassChar = GUICtrlSendMsg($second_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
         GUICtrlCreateLabel("nPLA/Vantage-Server IP",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+260)
+        GUICtrlSetTip(-1, $ip_tool_tip_text,"Info",1,1)
         $fourth_tf_npla_ip_address = GUICtrlCreateInput($name4_default_ip_address,$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+280,200,20)
 
         GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+310,200,25)
@@ -240,8 +239,37 @@ Global $g_aFileList[] ; Globales Array für die Dateiliste
         While 1
                 Switch GUIGetMsg()
                         Case $GUI_EVENT_CLOSE
-                            AdlibUnRegister("UpdateTree")
                             ExitLoop
+                        Case $open_name1
+                            If(FileExists(GoBack(@ScriptDir,1)&"\temp\"&$name1)) Then
+                                ShellExecute(GoBack(@ScriptDir,1)&"\temp\"&$name1)
+                            else
+                                MsgBox(16,"Error",GoBack(@ScriptDir,1)&"\temp\"&$name1&" does not exist")
+                            endif
+
+                        Case $open_name2
+                            If(FileExists(GoBack(@ScriptDir,1)&"\temp\"&$name2)) Then
+                                ShellExecute(GoBack(@ScriptDir,1)&"\temp\"&$name2)
+                            else
+                                MsgBox(16,"Error",GoBack(@ScriptDir,1)&"\temp\"&$name2&" does not exist")
+                            endif
+
+
+                        Case $open_name3
+                            If(FileExists(GoBack(@ScriptDir,1)&"\temp\"&$name3)) Then
+                                ShellExecute(GoBack(@ScriptDir,1)&"\temp\"&$name3)
+                            else
+                                MsgBox(16,"Error",GoBack(@ScriptDir,1)&"\temp\"&$name3&" does not exist")
+                            endif
+
+
+                        Case $open_name4
+                            If(FileExists(GoBack(@ScriptDir,1)&"\temp\"&$name4)) Then
+                                ShellExecute(GoBack(@ScriptDir,1)&"\temp\"&$name4)
+                            else
+                                MsgBox(16,"Error",GoBack(@ScriptDir,1)&"\temp\"&$name4&" does not exist")
+                            endif
+
                         Case $global_settings_btn_choose_lab_hub_directory
                             $path = ChooseFolder()
                             If Not ($path = "") Then
@@ -414,148 +442,6 @@ Global $g_aFileList[] ; Globales Array für die Dateiliste
                 WEnd
         ; Delete the previous GUI and all controls.
         GUIDelete($hGUI)
-
-
-; Funktion zur Verarbeitung von WM_NOTIFY
-        Func WM_NOTIFY($hWnd, $iMsg, $iwParam, $ilParam)
-            #forceref $hWnd, $iMsg, $iwParam
-            Local $hWndFrom, $iIDFrom, $iCode, $tNMHDR, $hWndTreeview
-            $hWndTreeview = $hTreeView
-            If Not IsHWnd($hTreeView) Then $hWndTreeview = GUICtrlGetHandle($hTreeView)
-        
-            $tNMHDR = DllStructCreate($tagNMHDR, $ilParam)
-            $hWndFrom = HWnd(DllStructGetData($tNMHDR, "hWndFrom"))
-            $iIDFrom = DllStructGetData($tNMHDR, "IDFrom")
-            $iCode = DllStructGetData($tNMHDR, "Code")
-            Switch $hWndFrom
-                Case $hWndTreeview
-                    Switch $iCode
-                        Case $NM_DBLCLK
-                            ; Prüfen, ob ein Knoten ausgewählt wurde (auf Event achten)
-                            Local $hSelectedItem = _GUICtrlTreeView_GetSelection($hTreeView)
-                            If $hSelectedItem <> 0 Then
-                                ; Abfrage des gespeicherten Pfads des Knotens
-                                Local $sFilePath = GoBack(@ScriptDir,1)&"\temp\"&GetFullPathFromTreeViewNode($hTreeView, $hSelectedItem)
-                                If(FileExists($sFilePath)) Then
-                                    ShellExecute($sFilePath)
-                                else
-                                    MsgBox(16,"Error","Filepath does not exist: "&$sFilePath)
-                            EndIf
-                        endif
-
-                    EndSwitch
-            EndSwitch
-            Return $GUI_RUNDEFMSG
-        EndFunc   ;==>WM_NOTIFY
-
-Func UpdateTree()
-    If(CheckDirectoryChanges($treePath) = true) Then
-        _GUICtrlTreeView_DeleteAll($hTreeView)
-        ListFiles_ToTreeView($hTreeView,$treePath, 0)
-    endif
-EndFunc
-
-; Funktion zur Rekursion durch Verzeichnisse
-Func _GetAllFiles($sDirPath)
-    Local $aFileArray[0] ; Initialisiere ein leeres Array
-
-    ; Aktuelle Dateien im Verzeichnis abrufen
-    Local $aFiles = _FileListToArray($sDirPath, "*", 1) ; 1 = nur Dateien
-    If IsArray($aFiles) Then
-        For $i = 1 To $aFiles[0]
-            ; Füge die Datei zum Array hinzu
-            ReDim $aFileArray[UBound($aFileArray) + 1]
-            $aFileArray[UBound($aFileArray) - 1] = $sDirPath & "\" & $aFiles[$i]
-        Next
-    EndIf
-
-    ; Unterverzeichnisse abrufen
-    Local $aDirs = _FileListToArray($sDirPath, "*", 2) ; 2 = nur Verzeichnisse
-    If IsArray($aDirs) Then
-        For $i = 1 To $aDirs[0]
-            ; Rekursiver Aufruf für jedes Unterverzeichnis
-            Local $aSubFiles = _GetAllFiles($sDirPath & "\" & $aDirs[$i])
-            If IsArray($aSubFiles) Then
-                For $j = 0 To UBound($aSubFiles) - 1
-                    ; Füge die Unterdateien zum Array hinzu
-                    If $aSubFiles[$j] <> "" Then ; Überprüfen, ob der Wert nicht leer ist
-                        ReDim $aFileArray[UBound($aFileArray) + 1]
-                        $aFileArray[UBound($aFileArray) - 1] = $aSubFiles[$j]
-                    EndIf
-                Next
-            EndIf
-        Next
-    EndIf
-
-    ; Rückgabe des Arrays mit allen Dateien
-    Return $aFileArray
-EndFunc
-
-Func CheckDirectoryChanges($sDirPath)
-    ; Überprüfen, ob das Verzeichnis existiert
-    If Not FileExists($sDirPath) Then
-        logging("Error", $sDirPath&" does not exist",1, false, false,16, false)
-        return false
-    EndIf
-
-    Local $aCurrentFiles = _GetAllFiles($sDirPath) ; Aktuelle Dateien im Verzeichnis und Unterverzeichnissen abrufen
-
-    ; Wenn g_aFileList leer ist, initialisiere es
-    If UBound($g_aFileList) = 0 Then
-        $g_aFileList = $aCurrentFiles
-    EndIf
-
-    ; Überprüfen, ob sich die Anzahl der Dateien geändert hat
-    If UBound($g_aFileList) <> UBound($aCurrentFiles) Then
-        ; Neue Dateien hinzugefügt oder Dateien gelöscht
-        $g_aFileList = $aCurrentFiles ; Aktualisiere die gespeicherte Liste
-        logging("Info", "Change detected in temp-Folder",1, false, false,16, false)
-        Return true
-    EndIf
-
-    ; Überprüfen, ob sich der Inhalt der Dateien geändert hat
-    For $i = 0 To UBound($aCurrentFiles) - 1
-        Local $sCurrentFile = $aCurrentFiles[$i]
-        Local $bFound = False
-
-        ; Überprüfen, ob die aktuelle Datei in der gespeicherten Liste vorhanden ist
-        For $j = 0 To UBound($g_aFileList) - 1
-            If $sCurrentFile = $g_aFileList[$j] Then
-                $bFound = True
-                ExitLoop
-            EndIf
-        Next
-
-        ; Wenn die Datei nicht gefunden wurde, wurden neue Dateien hinzugefügt
-        If Not $bFound Then
-            $g_aFileList = $aCurrentFiles ; Aktualisiere die gespeicherte Liste
-            Return "Neue Datei hinzugefügt: " & $sCurrentFile
-        EndIf
-    Next
-
-    ; Überprüfen auf gelöschte Dateien
-    For $i = 0 To UBound($g_aFileList) - 1
-        Local $sOldFile = $g_aFileList[$i]
-        Local $bFound = False
-
-        ; Überprüfen, ob die alte Datei in der aktuellen Liste vorhanden ist
-        For $j = 0 To UBound($aCurrentFiles) - 1
-            If $sOldFile = $aCurrentFiles[$j] Then
-                $bFound = True
-                ExitLoop
-            EndIf
-        Next
-
-        ; Wenn die alte Datei nicht gefunden wurde, wurde sie gelöscht
-        If Not $bFound Then
-            $g_aFileList = $aCurrentFiles ; Aktualisiere die gespeicherte Liste
-            Return "Datei gelöscht: " & $sOldFile
-        EndIf
-    Next
-
-    Return false
-EndFunc
-
 
 Func set_data_to_other_passphrase_inputs()
     GUICtrlSetData($second_tf_passphrase,GUICtrlRead($first_tf_passphrase))
