@@ -34,7 +34,7 @@ $name4_default_expiration_certificate = getIniValue($iniFilePath,"name4|defaults
 $name4_values_max_expiration_certificate = getIniValue($iniFilePath,"name4|values","maximum_expiration_certificate_in_months","",$goBackLogging)
 $name4_default_common_name = getIniValue($iniFilePath,"name4|defaults","common_name","",$goBackLogging)
 $name4_values_minimum_dns_entries = getIniValue($iniFilePath,"name4|values","minimum_dns_entries","",$goBackLogging)
-$name4_default_ip_address = getIniValue($iniFilePath,"name4|defaults","nplh_ip_address","",$goBackLogging)
+$name4_default_ip_address = getIniValue($iniFilePath,"name4|defaults","npla_ip_address","",$goBackLogging)
 $global_default_openssl_directory = getIniValue($iniFilePath,"global|defaults","openssl_directory","",$goBackLogging)
 
 
