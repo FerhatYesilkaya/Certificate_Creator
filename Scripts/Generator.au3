@@ -115,6 +115,7 @@ Global $g_aFileList[] ; Globales Array für die Dateiliste
         $second_sDefaultPassChar = GUICtrlSendMsg($second_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
         GUICtrlCreateLabel("nPLH/VConnect-Server IP",$gap_left,$global_settings_group+$first_group_height+245)
+        GUICtrlSetTip(-1, $ip_tool_tip_text,"Info",1,1)
         $second_tf_nplh_ip_address = GUICtrlCreateInput($name2_default_ip_address,$gap_left,$global_settings_group+$first_group_height+265,200,20)
 
         GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+$first_group_height+295,200,25)
@@ -136,6 +137,7 @@ Global $g_aFileList[] ; Globales Array für die Dateiliste
 
 
         GUICtrlCreateLabel("VSS-IP-Address",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+40,200,25)
+        GUICtrlSetTip(-1, $ip_tool_tip_text,"Info",1,1)
         $third_list_ip_view = GUICtrlCreateListView("Location|IP", $gap_left,$global_settings_group+$first_group_height+$secound_group_height+55,300, 80, BitOR($WS_VSCROLL,$LVS_SINGLESEL))
         $third_add_to_ip_list = GUICtrlCreateButton("Add",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+65,70)
         $third_delete_from_ip_list = GUICtrlCreateButton("Delete",$gap_left+310,$global_settings_group+$first_group_height+$secound_group_height+105,70)
@@ -210,6 +212,7 @@ Global $g_aFileList[] ; Globales Array für die Dateiliste
         $fourth_sDefaultPassChar = GUICtrlSendMsg($second_tf_passphrase, $EM_GETPASSWORDCHAR, 0, 0)
 
         GUICtrlCreateLabel("nPLA/Vantage-Server IP",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+260)
+        GUICtrlSetTip(-1, $ip_tool_tip_text,"Info",1,1)
         $fourth_tf_npla_ip_address = GUICtrlCreateInput($name4_default_ip_address,$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+280,200,20)
 
         GUICtrlCreateLabel("Common name",$gap_left,$global_settings_group+$first_group_height+$secound_group_height+$third_group_height+310,200,25)
