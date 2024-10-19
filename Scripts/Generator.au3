@@ -22,10 +22,11 @@ Local $vss_locations[0]
 Local $wasFocused = False  ; Tracks whether the specific input had focus
 Local $rootCAhasNoPassphrase = false
 Local $global_start_text = "Start selected"
+Local $window_title = "Certificate Generator - Version 1.0.0"
 
 
         ; Create a GUI with various controls
-        Local $hGUI = GUICreate("Configuration", $gui_width+20, 500)
+        Local $hGUI = GUICreate($window_title, $gui_width+20, 500)
         $open_name1 = GUICtrlCreateButton("Open Root CA directory",$gui_width-270,25,250,50)
         $open_name2 = GUICtrlCreateButton("Open nPLH/VConnect directory",$gui_width-270,100,250,50)
         $open_name3 = GUICtrlCreateButton("Open VSS directory",$gui_width-270,175,250,50)
