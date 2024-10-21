@@ -22,7 +22,7 @@ Local $vss_locations[0]
 Local $wasFocused = False  ; Tracks whether the specific input had focus
 Local $rootCAhasNoPassphrase = false
 Local $global_start_text = "Start selected"
-Local $window_title = "Certificate Generator - Version 1.0.0"
+Local $window_title = "Certificate Generator - Version 1.0.1"
 
 
         ; Create a GUI with various controls
@@ -36,6 +36,9 @@ Local $window_title = "Certificate Generator - Version 1.0.0"
         GUICtrlSetFont(-1,11,700)
         GUICtrlCreateLabel("OpenSSL Folder",$gap_left,30,200)
         GUICtrlSetTip(-1, $openssl_folder_tool_tip_text,"Info",1,1)
+        If($global_default_openssl_directory = "useDefault") Then
+            $global_default_openssl_directory = @ScriptDir&"\data\Apache24\bin"
+        endif
         $global_settings_tf_openssl_directory = GUICtrlCreateInput($global_default_openssl_directory,$gap_left,50,270,20,$ES_READONLY)
         $global_settings_btn_choose_lab_hub_directory = GUICtrlCreateButton("Directory",$gap_left+280,50, 100, 20)
 
