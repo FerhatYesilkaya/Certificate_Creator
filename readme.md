@@ -1,7 +1,7 @@
 # Certificate Generator
 ![Version](https://img.shields.io/badge/version-1.0.2-green.svg)
 
-## Release Notes
+## Update Notes
 - **Fixed "Can not find openssl.exe"-Bug if the default openssl is used**
 
 ## Description
